@@ -117,7 +117,7 @@ export default function Contact() {
                 <textarea name="message" rows={6} required placeholder="How can we help?" />
               </label>
 
-              <button type="submit" className="button primary">
+              <button type="submit" className="button">
                 Send message
               </button>
             </form>

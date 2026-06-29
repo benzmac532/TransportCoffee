@@ -134,7 +134,7 @@ export default function Wholesale() {
                 />
               </label>
 
-              <button type="submit" className="button primary">
+              <button type="submit" className="button">
                 Submit inquiry
               </button>
             </form>

@@ -37,7 +37,7 @@ export default function Home() {
             We source thoughtful coffees and roast them with every ounce of care.
             Coffee should fuel your journey — let&apos;s move forward together.
           </p>
-          <Link className="button primary" to="/subscriptions">
+          <Link className="button" to="/subscriptions">
             Shop subscriptions
           </Link>
         </div>
@@ -52,6 +52,15 @@ export default function Home() {
       </section>
 
       <section className="editorial-block light">
+        <div className="editorial-visual cafe-photo" aria-hidden="true">
+          <div className="menu-board">
+            <span>Coffee</span>
+            <span>Espresso</span>
+            <span>Americano</span>
+            <span>Latte</span>
+            <span>Cold Brew</span>
+          </div>
+        </div>
         <div className="editorial-copy">
           <p className="eyebrow">Hey there!</p>
           <h2>
@@ -62,25 +71,13 @@ export default function Home() {
             We craft coffee with intention — designed to forge the path from here
             to there. Built for momentum and grounded in quality.
           </p>
-          <Link className="button outline" to="/about">
+          <Link className="button" to="/about">
             Our story
           </Link>
         </div>
-        <div className="editorial-visual cafe-photo" aria-hidden="true">
-          <div className="menu-board">
-            <span>Coffee</span>
-            <span>Espresso</span>
-            <span>Americano</span>
-            <span>Latte</span>
-            <span>Cold Brew</span>
-          </div>
-        </div>
       </section>
 
-      <section className="editorial-block dark reverse">
-        <div className="editorial-visual product-spotlight" aria-hidden="true">
-          <ProductMockup color="navy" label="Waypoint" sublabel="Blend" />
-        </div>
+      <section className="editorial-block dark">
         <div className="editorial-copy">
           <p className="eyebrow">Freshly roasted</p>
           <h2>
@@ -88,9 +85,12 @@ export default function Home() {
             <span>stuff.</span>
           </h2>
           <p>Small-batch coffees roasted for peak flavor, consistency, and momentum.</p>
-          <Link className="button primary" to="/subscriptions">
+          <Link className="button" to="/subscriptions">
             View subscriptions
           </Link>
+        </div>
+        <div className="editorial-visual product-spotlight" aria-hidden="true">
+          <ProductMockup color="navy" label="Waypoint" sublabel="Blend" />
         </div>
       </section>
 
@@ -108,7 +108,7 @@ export default function Home() {
               <h3>{coffee.name}</h3>
               <p>{coffee.notes}</p>
               <strong>{coffee.price}</strong>
-              <Link to="/subscriptions" className="text-link">
+              <Link to="/subscriptions" className="button">
                 Subscribe <ArrowRight size={14} />
               </Link>
             </article>
@@ -116,8 +116,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="editorial-block navy">
-        <div className="editorial-copy centered">
+      <section className="dual-cta-row">
+        <div className="dual-cta-panel subscribe-panel">
           <p className="eyebrow">Never miss a roast</p>
           <h2>
             Subscribe
@@ -127,14 +127,11 @@ export default function Home() {
             Get fresh coffee delivered on your schedule. Save 10% on every
             subscription order and keep your daily ritual moving.
           </p>
-          <Link className="button primary" to="/subscriptions">
+          <Link className="button" to="/subscriptions">
             Explore plans
           </Link>
         </div>
-      </section>
-
-      <section className="editorial-block light">
-        <div className="editorial-copy">
+        <div className="dual-cta-panel wholesale-panel">
           <p className="eyebrow">Partnerships</p>
           <h2>
             Wholesale
@@ -144,14 +141,13 @@ export default function Home() {
             Cafés, offices, and retailers — let&apos;s build a coffee program that
             moves your business forward with quality and consistency.
           </p>
-          <Link className="button outline" to="/wholesale">
+          <Link className="button" to="/wholesale">
             Get started
           </Link>
         </div>
-        <div className="editorial-visual wholesale-visual" aria-hidden="true" />
       </section>
 
-      <section className="editorial-block dark">
+      <section className="editorial-block dark full">
         <div className="editorial-copy centered">
           <p className="eyebrow">Say hello</p>
           <h2>
@@ -159,7 +155,7 @@ export default function Home() {
             <span>to hear from you.</span>
           </h2>
           <p>Questions, feedback, or just want to talk coffee? Reach out anytime.</p>
-          <Link className="button secondary" to="/contact">
+          <Link className="button" to="/contact">
             Contact us
           </Link>
         </div>

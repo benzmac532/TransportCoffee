@@ -126,7 +126,7 @@ export default function Subscriptions() {
             </li>
           ))}
         </ul>
-        <button type="button" className="button primary" disabled>
+        <button type="button" className="button" disabled>
           Start subscription (coming soon)
         </button>
       </section>
