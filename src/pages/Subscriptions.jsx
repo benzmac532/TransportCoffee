@@ -60,7 +60,7 @@ export default function Subscriptions() {
             <button
               key={plan.id}
               type="button"
-              className={`plan-card ${plan.featured ? 'featured' : ''} ${selectedPlan === plan.id ? 'selected' : ''}`}
+              className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
               onClick={() => setSelectedPlan(plan.id)}
             >
               {plan.featured && <span className="plan-badge">Most popular</span>}
