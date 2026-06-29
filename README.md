@@ -1,9 +1,15 @@
 # Transport Coffee Roasters
 
-A deployable single-page coffee roaster website inspired by the provided brand
-mockups. The site uses a warm bone/navy/copper palette, product-focused hero,
-origin cards, subscription callout, brand palette, story section, and footer
-signup.
+A multi-page coffee roaster website inspired by Perc Coffee's editorial layout,
+using Transport Coffee's bone/navy/copper color palette.
+
+## Pages
+
+- **Home** — Perc-style stacked editorial sections with featured coffees
+- **About Us** — Brand story and mission
+- **Subscriptions** — Plan selection layout (checkout coming soon)
+- **Wholesale** — Inquiry form layout
+- **Contact Us** — Contact form and business details
 
 ## Run Locally
 
