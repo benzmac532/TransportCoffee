@@ -882,9 +882,13 @@ h3,
   color: var(--bone);
 }
 
-.plan-card.selected p,
+.plan-card.selected p:not(.plan-price),
 .plan-card.selected li {
   color: rgba(242, 238, 230, 0.85);
+}
+
+.plan-card.selected .plan-price {
+  color: var(--copper);
 }
 
 .plan-card.selected .plan-price small {
