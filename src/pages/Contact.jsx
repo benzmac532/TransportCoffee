@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
+import {
+  CONTACT_EMAIL,
+  buildContactEmail,
+  openMailto,
+} from '../lib/emailDrafts';
 
 const subjects = [
   'General inquiry',
@@ -15,6 +20,8 @@ export default function Contact() {
 
   function handleSubmit(event) {
     event.preventDefault();
+    const draft = buildContactEmail(new FormData(event.currentTarget));
+    openMailto(draft);
     setSubmitted(true);
   }
 
@@ -24,8 +31,8 @@ export default function Contact() {
         <p className="eyebrow">Contact Us</p>
         <h1>Let&apos;s connect.</h1>
         <p className="lead">
-          Questions, feedback, or just want to talk coffee? We&apos;d love to hear
-          from you.
+          Questions, feedback, or just want to talk coffee? Reach us anytime at{' '}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </section>
 
@@ -33,8 +40,8 @@ export default function Contact() {
         <div className="contact-info">
           <h2>Get in touch</h2>
           <p>
-            Reach out by email, phone, or the form — we typically respond within
-            1–2 business days.
+            Send a note through the form and we&apos;ll open your email client so
+            your message goes straight to our inbox.
           </p>
 
           <ul className="contact-details">
@@ -42,40 +49,26 @@ export default function Contact() {
               <Mail size={20} />
               <div>
                 <strong>Email</strong>
-                <a href="mailto:hello@transportcoffee.com">hello@transportcoffee.com</a>
-              </div>
-            </li>
-            <li>
-              <Phone size={20} />
-              <div>
-                <strong>Phone</strong>
-                <a href="tel:+15551234567">(555) 123-4567</a>
+                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
               </div>
             </li>
             <li>
               <MapPin size={20} />
               <div>
                 <strong>Location</strong>
-                <span>Savannah, Georgia</span>
+                <span>The Shoals, AL</span>
               </div>
             </li>
           </ul>
-
-          <div className="hours-card">
-            <h3>Hours</h3>
-            <p>Monday – Friday: 8am – 5pm</p>
-            <p>Saturday: 9am – 2pm</p>
-            <p>Sunday: Closed</p>
-          </div>
         </div>
 
         <div className="form-card">
           {submitted ? (
             <div className="form-success">
-              <h2>Message sent!</h2>
+              <h2>Opening email…</h2>
               <p>
-                Thanks for reaching out. We&apos;ll get back to you as soon as we
-                can.
+                If your email app didn&apos;t open, reach us directly at{' '}
+                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
               </p>
             </div>
           ) : (
@@ -118,7 +111,7 @@ export default function Contact() {
               </label>
 
               <button type="submit" className="button">
-                Send message
+                Email us
               </button>
             </form>
           )}

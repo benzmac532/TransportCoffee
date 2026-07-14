@@ -1,21 +1,15 @@
 import { Link } from 'react-router-dom';
 
-export default function Logo() {
+export default function Logo({ compact = false }) {
   return (
-    <Link to="/" className="logo" aria-label="Transport Coffee home">
-      <span className="logo-mark" aria-hidden="true">
-        <span className="logo-wings left">
-          <span />
-          <span />
-          <span />
-        </span>
-        <span className="logo-t">T</span>
-        <span className="logo-wings right">
-          <span />
-          <span />
-          <span />
-        </span>
-      </span>
+    <Link to="/" className={`logo ${compact ? 'compact' : ''}`} aria-label="Transport Coffee Roasters home">
+      <img
+        className="logo-mark-img"
+        src="/logo-mark.png"
+        alt=""
+        width={48}
+        height={40}
+      />
       <span>
         <strong>Transport</strong>
         <small>Coffee Roasters</small>

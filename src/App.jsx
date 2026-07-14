@@ -6,6 +6,9 @@ import About from './pages/About';
 import Subscriptions from './pages/Subscriptions';
 import Wholesale from './pages/Wholesale';
 import Contact from './pages/Contact';
+import Locations from './pages/Locations';
+import RefundPolicy from './pages/RefundPolicy';
+import ShippingPolicy from './pages/ShippingPolicy';
 
 export default function App() {
   return (
@@ -18,6 +21,9 @@ export default function App() {
           <Route path="subscriptions" element={<Subscriptions />} />
           <Route path="wholesale" element={<Wholesale />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="locations" element={<Locations />} />
+          <Route path="refund-policy" element={<RefundPolicy />} />
+          <Route path="shipping-policy" element={<ShippingPolicy />} />
         </Route>
       </Routes>
     </BrowserRouter>
