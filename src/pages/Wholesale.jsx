@@ -78,9 +78,10 @@ export default function Wholesale() {
           <div className="form-card wholesale-form-card">
             {submitted ? (
               <div className="form-success">
-                <h2>Opening email…</h2>
+                <h2>Thanks!</h2>
                 <p>
-                  If your email app didn&apos;t open, reach us directly at{' '}
+                  We&apos;ll review your inquiry and reply soon. Prefer email?
+                  Reach us at{' '}
                   <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
                 </p>
               </div>

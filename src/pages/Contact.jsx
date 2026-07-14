@@ -40,8 +40,7 @@ export default function Contact() {
         <div className="contact-info">
           <h2>Get in touch</h2>
           <p>
-            Send a note through the form and we&apos;ll open your email client so
-            your message goes straight to our inbox.
+            Send a note through the form and we&apos;ll get back to you directly.
           </p>
 
           <ul className="contact-details">
@@ -65,9 +64,10 @@ export default function Contact() {
         <div className="form-card">
           {submitted ? (
             <div className="form-success">
-              <h2>Opening email…</h2>
+              <h2>Thanks!</h2>
               <p>
-                If your email app didn&apos;t open, reach us directly at{' '}
+                We&apos;ll review your message and reply soon. Prefer email?
+                Reach us at{' '}
                 <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
               </p>
             </div>
