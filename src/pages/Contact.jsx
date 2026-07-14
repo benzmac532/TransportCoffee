@@ -40,7 +40,8 @@ export default function Contact() {
         <div className="contact-info">
           <h2>Get in touch</h2>
           <p>
-            Send a note through the form and we&apos;ll get back to you directly.
+            Drop us a line anytime — questions, feedback, or just coffee talk.
+            We love hearing from you and we&apos;ll reply soon.
           </p>
 
           <ul className="contact-details">
