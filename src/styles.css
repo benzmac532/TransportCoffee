@@ -2224,18 +2224,20 @@ h3,
     min-height: auto;
   }
 
-  /* Keep all homepage photo panes the same height on mobile */
-  .home-quad .perc-hero-visual,
+  /* Drop secondary photos when the homepage stacks to one column */
   .home-quad .editorial-visual,
   .home-cta-photo {
+    display: none;
+  }
+
+  /* Keep the remaining homepage photo pane a consistent height on mobile */
+  .home-quad .perc-hero-visual {
     height: 16rem;
     max-height: 16rem;
     min-height: 16rem;
   }
 
-  .home-quad .hero-photo,
-  .home-quad .editorial-photo,
-  .home-cta-photo img {
+  .home-quad .hero-photo {
     height: 100%;
     max-height: none;
     min-height: 0;
