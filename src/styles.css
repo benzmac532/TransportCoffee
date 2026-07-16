@@ -694,14 +694,17 @@ h3,
 
 .about-feature {
   align-items: stretch;
-  background: var(--oatmeal);
+  background: transparent;
   display: grid;
+  gap: var(--cta-gutter);
   grid-template-columns: 1fr 1fr;
   width: 100%;
 }
 
 .about-photo-col {
+  background: var(--oatmeal);
   min-height: 0;
+  overflow: hidden;
   position: relative;
 }
 
@@ -729,6 +732,7 @@ h3,
 
 .about-copy {
   align-content: center;
+  background: var(--oatmeal);
   margin: 0;
   max-width: none;
   padding: clamp(3rem, 7vw, 5.5rem);
@@ -812,14 +816,16 @@ h3,
 
 .wholesale-feature {
   align-items: stretch;
-  background: var(--oatmeal);
+  background: transparent;
   display: grid;
+  gap: var(--cta-gutter);
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 47rem;
   width: 100%;
 }
 
 .wholesale-photo-col {
+  background: var(--oatmeal);
   min-height: 0;
   overflow: hidden;
   position: relative;
@@ -846,6 +852,7 @@ h3,
 
 .wholesale-feature .wholesale-info {
   align-content: center;
+  background: var(--oatmeal);
   overflow: auto;
   padding: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 4vw, 3.5rem);
 }
@@ -1879,11 +1886,22 @@ h3,
 
 /* Forms */
 
+.contact-mosaic,
+.locations-mosaic {
+  --cta-gutter: clamp(0.7rem, 1.4vw, 1.1rem);
+  background: var(--bone);
+  display: grid;
+  gap: var(--cta-gutter);
+  padding: var(--cta-gutter);
+}
+
 .wholesale-layout,
 .contact-layout {
+  background: var(--oatmeal);
   display: grid;
   gap: 3rem;
   grid-template-columns: 0.9fr 1.1fr;
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.75rem, 5vw, 4rem);
 }
 
 .wholesale-info h2,
@@ -2026,9 +2044,11 @@ h3,
 }
 
 .locations-layout {
+  background: var(--oatmeal);
   display: grid;
   gap: 2rem;
   grid-template-columns: 0.9fr 1.1fr;
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.75rem, 5vw, 4rem);
 }
 
 .locations-list h2 {

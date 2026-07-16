@@ -41,10 +41,6 @@ export default function Wholesale() {
             <span>Partnerships that move</span>
             <span>coffee forward.</span>
           </h1>
-          <p className="lead">
-            Tell us about your business and we&apos;ll be in touch to build a
-            wholesale program tailored to your needs.
-          </p>
         </section>
 
         <section className="wholesale-feature">
