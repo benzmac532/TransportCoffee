@@ -51,8 +51,9 @@ h1,
 h2,
 h3,
 .display {
-  font-family: "Arial Narrow", Impact, Haettenschweiler, sans-serif;
-  letter-spacing: 0.06em;
+  font-family: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   line-height: 0.95;
   margin: 0;
   text-transform: uppercase;
@@ -989,8 +990,9 @@ h3,
 
 .brand-lines strong {
   display: block;
-  font-family: "Arial Narrow", Impact, sans-serif;
+  font-family: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
   font-size: 1.7rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
 }
 
