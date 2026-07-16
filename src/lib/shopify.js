@@ -311,10 +311,7 @@ export async function getCollectionProducts(handle, { first = 50 } = {}) {
   }
 
   if (!isStorefrontConfigured()) {
-    const products = await fetchPublicCollectionProducts(handle, first);
-    if (products.length) return products;
-    // Soft fallback: some stores use different handles; show all coffee-ish catalog
-    return getProducts({ first });
+    return fetchPublicCollectionProducts(handle, first);
   }
 
   const data = await storefrontFetch(
@@ -333,9 +330,8 @@ export async function getCollectionProducts(handle, { first = 50 } = {}) {
     { handle, first },
   );
 
-  if (!data.collection) {
-    return getProducts({ first });
-  }
+  // Missing collection → empty list (do not fall back to all products).
+  if (!data.collection) return [];
 
   return (data.collection.products?.nodes || []).map(mapStorefrontProduct);
 }
