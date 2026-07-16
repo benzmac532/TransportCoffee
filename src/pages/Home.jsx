@@ -33,22 +33,37 @@ export default function Home() {
     <main>
       <section className="home-quad">
         <div className="perc-hero-copy">
-          <p className="eyebrow">Est. 2026</p>
-          <h1>
-            <span>Coffee that</span>
-            <span>moves you</span>
-          </h1>
-          <p className="lead">
-            We source thoughtful coffees and roast them with every ounce of care.
-            Coffee should fuel your journey — let&apos;s move forward together.
-          </p>
-          <div className="hero-actions">
-            <Link className="button" to="/subscriptions">
-              Shop subscriptions
-            </Link>
-            <Link className="button ghost" to="/shop">
-              Shop coffee
-            </Link>
+          <div className="perc-hero-media" aria-hidden="true">
+            <video
+              className="perc-hero-video"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="/open-roaster.png"
+            >
+              <source src="/roaster.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <div className="perc-hero-content">
+            <p className="eyebrow">Est. 2026</p>
+            <h1>
+              <span>Coffee that</span>
+              <span>moves you</span>
+            </h1>
+            <p className="lead">
+              We source thoughtful coffees and roast them with every ounce of care.
+              Coffee should fuel your journey — let&apos;s move forward together.
+            </p>
+            <div className="hero-actions">
+              <Link className="button" to="/subscriptions">
+                Shop subscriptions
+              </Link>
+              <Link className="button ghost" to="/shop">
+                Shop coffee
+              </Link>
+            </div>
           </div>
         </div>
         <div className="perc-hero-visual">
