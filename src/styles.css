@@ -1544,6 +1544,14 @@ h3,
   max-width: 22ch;
 }
 
+.subscriptions-page .page-hero h1 {
+  max-width: none;
+}
+
+.subscriptions-page .page-hero h1 span {
+  white-space: nowrap;
+}
+
 .page-hero .lead {
   color: rgba(242, 238, 230, 0.78);
   margin: 1.25rem auto 0;

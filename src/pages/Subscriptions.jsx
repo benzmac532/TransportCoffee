@@ -48,10 +48,11 @@ export default function Subscriptions() {
       <div className="subscriptions-mosaic">
         <section className="page-hero">
           <p className="eyebrow">Subscriptions</p>
-          <h1>Fresh coffee on your schedule.</h1>
-          <p className="lead">
-            Choose a plan, set your frequency, and keep the good stuff moving.
-          </p>
+          <h1>
+            <span>Fresh Coffee</span>
+            <span>on your</span>
+            <span>Schedule.</span>
+          </h1>
         </section>
 
         <section className="subs-feature">
