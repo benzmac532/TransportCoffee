@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   CONTACT_EMAIL,
   buildWholesaleEmail,
-  openMailto,
+  sendFormEmail,
 } from '../lib/emailDrafts';
 
 const businessTypes = [
@@ -24,12 +24,25 @@ const volumeOptions = [
 
 export default function Wholesale() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    const draft = buildWholesaleEmail(new FormData(event.currentTarget));
-    openMailto(draft);
-    setSubmitted(true);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    setSending(true);
+    setError('');
+
+    try {
+      await sendFormEmail(buildWholesaleEmail(formData), String(formData.get('website') || ''));
+      setSubmitted(true);
+      form.reset();
+    } catch (submitError) {
+      setError(submitError.message);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -84,6 +97,11 @@ export default function Wholesale() {
             ) : (
               <form className="site-form wholesale-inquiry-form" onSubmit={handleSubmit}>
                 <h2>Wholesale inquiry</h2>
+
+                <label className="form-honeypot" aria-hidden="true">
+                  <span>Website</span>
+                  <input type="text" name="website" tabIndex="-1" autoComplete="off" />
+                </label>
 
                 <div className="form-row">
                   <label>
@@ -156,8 +174,10 @@ export default function Wholesale() {
                   />
                 </label>
 
-                <button type="submit" className="button">
-                  Submit inquiry
+                {error && <p className="form-error" role="alert">{error}</p>}
+
+                <button type="submit" className="button" disabled={sending}>
+                  {sending ? 'Sending…' : 'Submit inquiry'}
                 </button>
               </form>
             )}

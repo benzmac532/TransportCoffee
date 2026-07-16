@@ -3,7 +3,7 @@ import { Mail, MapPin } from 'lucide-react';
 import {
   CONTACT_EMAIL,
   buildContactEmail,
-  openMailto,
+  sendFormEmail,
 } from '../lib/emailDrafts';
 
 const subjects = [
@@ -17,12 +17,25 @@ const subjects = [
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    const draft = buildContactEmail(new FormData(event.currentTarget));
-    openMailto(draft);
-    setSubmitted(true);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    setSending(true);
+    setError('');
+
+    try {
+      await sendFormEmail(buildContactEmail(formData), String(formData.get('website') || ''));
+      setSubmitted(true);
+      form.reset();
+    } catch (submitError) {
+      setError(submitError.message);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -73,6 +86,11 @@ export default function Contact() {
               <form className="site-form" onSubmit={handleSubmit}>
                 <h2>Send a message</h2>
 
+                <label className="form-honeypot" aria-hidden="true">
+                  <span>Website</span>
+                  <input type="text" name="website" tabIndex="-1" autoComplete="off" />
+                </label>
+
                 <div className="form-row">
                   <label>
                     <span>First name *</span>
@@ -108,8 +126,10 @@ export default function Contact() {
                   <textarea name="message" rows={6} required placeholder="How can we help?" />
                 </label>
 
-                <button type="submit" className="button">
-                  Email us
+                {error && <p className="form-error" role="alert">{error}</p>}
+
+                <button type="submit" className="button" disabled={sending}>
+                  {sending ? 'Sending…' : 'Email us'}
                 </button>
               </form>
             )}

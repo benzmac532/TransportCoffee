@@ -1961,6 +1961,25 @@ h3,
   margin-bottom: 0.5rem;
 }
 
+.site-form .form-honeypot {
+  height: 0;
+  left: -9999px;
+  overflow: hidden;
+  position: absolute;
+  width: 0;
+}
+
+.form-error {
+  color: var(--rust);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.site-form .button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .site-form label {
   display: grid;
   gap: 0.4rem;

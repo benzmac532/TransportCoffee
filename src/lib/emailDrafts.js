@@ -1,7 +1,6 @@
 /**
- * Draft email bodies for site forms.
- * Today: used in mailto: links.
- * Later: same shapes can power a Gmail/SMTP backend that emails transportcoffeeroasters@gmail.com.
+ * Email payloads for the Contact and Wholesale forms.
+ * Submissions are sent through the server-side Gmail endpoint.
  */
 
 export const CONTACT_EMAIL = 'transportcoffeeroasters@gmail.com';
@@ -78,6 +77,17 @@ export function buildWholesaleEmail(form) {
   return { to: CONTACT_EMAIL, subject, body, replyTo: email };
 }
 
-export function openMailto({ to, subject, body }) {
-  window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+export async function sendFormEmail({ subject, body, replyTo }, website = '') {
+  const response = await fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subject, body, replyTo, website }),
+  });
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.error || 'We could not send your message. Please try again.');
+  }
+
+  return result;
 }
