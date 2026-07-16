@@ -41,43 +41,44 @@ export default function Shop() {
 
   return (
     <main className="page shop-page">
-      <section className="page-hero">
-        <p className="eyebrow">Shop</p>
-        <h1>{title}</h1>
-        <p className="lead">Freshly roasted coffee and gear for the journey ahead.</p>
-      </section>
+      <div className="shop-mosaic">
+        <section className="page-hero">
+          <p className="eyebrow">Shop</p>
+          <h1>{title}</h1>
+        </section>
 
-      <section className="section shop-catalog">
-        <div className="shop-collection-nav" aria-label="Shop collections">
-          <Link to="/shop" className={!handle ? 'active' : undefined}>
-            All
-          </Link>
-          {SHOP_COLLECTIONS.filter((item) => item.handle).map((item) => (
-            <Link
-              key={item.handle}
-              to={item.to}
-              className={handle === item.handle ? 'active' : undefined}
-            >
-              {item.label}
+        <section className="shop-catalog">
+          <div className="shop-collection-nav" aria-label="Shop collections">
+            <Link to="/shop" className={!handle ? 'active' : undefined}>
+              All
             </Link>
-          ))}
-        </div>
-
-        {loading && <p className="shop-status">Loading products…</p>}
-        {error && <p className="shop-status shop-status-error">{error}</p>}
-
-        {!loading && !error && products.length === 0 && (
-          <p className="shop-status">No products found in this collection yet.</p>
-        )}
-
-        {!loading && products.length > 0 && (
-          <div className="product-grid shop-grid">
-            {products.map((product) => (
-              <ProductCard key={product.id || product.handle} product={product} />
+            {SHOP_COLLECTIONS.filter((item) => item.handle).map((item) => (
+              <Link
+                key={item.handle}
+                to={item.to}
+                className={handle === item.handle ? 'active' : undefined}
+              >
+                {item.label}
+              </Link>
             ))}
           </div>
-        )}
-      </section>
+
+          {loading && <p className="shop-status">Loading products…</p>}
+          {error && <p className="shop-status shop-status-error">{error}</p>}
+
+          {!loading && !error && products.length === 0 && (
+            <p className="shop-status">No products found in this collection yet.</p>
+          )}
+
+          {!loading && products.length > 0 && (
+            <div className="product-grid shop-grid">
+              {products.map((product) => (
+                <ProductCard key={product.id || product.handle} product={product} />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

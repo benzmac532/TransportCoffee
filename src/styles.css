@@ -1195,8 +1195,17 @@ h3,
   width: 100%;
 }
 
+.shop-mosaic {
+  --cta-gutter: clamp(0.7rem, 1.4vw, 1.1rem);
+  background: var(--bone);
+  display: grid;
+  gap: var(--cta-gutter);
+  padding: var(--cta-gutter);
+}
+
 .shop-catalog {
-  padding-top: clamp(2.5rem, 5vw, 4rem);
+  background: var(--oatmeal);
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.75rem, 5vw, 4rem);
 }
 
 .shop-collection-nav {
