@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
-import { FEATURED_HANDLES, getProductsByHandles } from '../lib/shopify';
+import { ArrowRight } from 'lucide-react';
+import { FEATURED_HANDLES, formatMoney, getProductsByHandles } from '../lib/shopify';
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -83,8 +83,10 @@ export default function Home() {
 
       <section className="section shop-preview">
         <div className="section-heading">
-          <p className="eyebrow">From the shop</p>
           <h2>Coffee for the journey.</h2>
+          <Link className="text-link shop-preview-all" to="/shop">
+            View all products <ArrowRight size={14} />
+          </Link>
         </div>
         {loadingFeatured && <p className="shop-status">Loading featured coffees…</p>}
         {!loadingFeatured && featured.length === 0 && (
@@ -95,15 +97,35 @@ export default function Home() {
         {featured.length > 0 && (
           <div className="product-grid">
             {featured.map((product) => (
-              <ProductCard key={product.handle} product={product} />
+              <article className="product-card" key={product.handle}>
+                <Link className="product-art" to={`/shop/${product.handle}`}>
+                  {product.image?.url ? (
+                    <img src={product.image.url} alt={product.image.altText || product.title} />
+                  ) : (
+                    <div className="product-art-placeholder" aria-hidden="true" />
+                  )}
+                </Link>
+                <h3>
+                  <Link to={`/shop/${product.handle}`}>{product.title}</Link>
+                </h3>
+                {product.description && (
+                  <p>
+                    {product.description.slice(0, 90)}
+                    {product.description.length > 90 ? '…' : ''}
+                  </p>
+                )}
+                {product.price && (
+                  <strong>
+                    {formatMoney(product.price.amount, product.price.currencyCode)}
+                  </strong>
+                )}
+                <Link className="button" to={`/shop/${product.handle}`}>
+                  Shop now <ArrowRight size={14} />
+                </Link>
+              </article>
             ))}
           </div>
         )}
-        <div className="section-heading" style={{ marginTop: '2rem', marginBottom: 0 }}>
-          <Link className="button" to="/shop">
-            View all products
-          </Link>
-        </div>
       </section>
 
       <section className="home-cta-mosaic" aria-label="Subscriptions, wholesale, and contact">

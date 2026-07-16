@@ -33,6 +33,20 @@ export function isStorefrontConfigured() {
   return Boolean(storeDomain && storefrontToken);
 }
 
+/** Which Storefront env vars are missing (for UI / deploy debugging). */
+export function getMissingStorefrontEnv() {
+  const missing = [];
+  if (!storeDomain) missing.push('VITE_SHOPIFY_STORE_DOMAIN');
+  if (!storefrontToken) missing.push('VITE_SHOPIFY_STOREFRONT_TOKEN');
+  return missing;
+}
+
+export function storefrontConfigHint() {
+  const missing = getMissingStorefrontEnv();
+  if (missing.length === 0) return '';
+  return `Missing ${missing.join(' and ')}. On Vercel, set them for Production and redeploy without build cache. Domain must be your *.myshopify.com host (e.g. bk6zru-20.myshopify.com), not the custom domain.`;
+}
+
 export function formatMoney(amount, currencyCode = 'USD') {
   const value = Number(amount);
   if (Number.isNaN(value)) return '';
@@ -383,9 +397,7 @@ export async function createCart(lines = []) {
 
 export async function addLinesToCart(merchandiseId, quantity = 1) {
   if (!isStorefrontConfigured()) {
-    throw new Error(
-      'Cart requires Shopify Storefront API credentials. Add VITE_SHOPIFY_STORE_DOMAIN and VITE_SHOPIFY_STOREFRONT_TOKEN to .env.',
-    );
+    throw new Error(storefrontConfigHint() || 'Cart requires Shopify Storefront API credentials.');
   }
 
   const lines = [{ merchandiseId, quantity }];

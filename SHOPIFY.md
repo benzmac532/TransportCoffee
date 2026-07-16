@@ -65,7 +65,20 @@ Deploy `dist` to one of:
 - **Vercel** / **Netlify** / **Cloudflare Pages**
   - Build: `npm run build`
   - Output: `dist`
-  - Add the same `VITE_SHOPIFY_*` env vars in the host dashboard
+  - Add **all three** `VITE_SHOPIFY_*` env vars in the host dashboard (Production at minimum):
+    - `VITE_SHOPIFY_STORE_DOMAIN` — `*.myshopify.com` host only (e.g. `bk6zru-20.myshopify.com`), **not** the custom domain
+    - `VITE_SHOPIFY_STOREFRONT_TOKEN`
+    - `VITE_SHOPIFY_PUBLIC_URL` (optional fallback for catalog browsing)
+  - Vite bakes these in at **build** time. After adding/changing them: **Redeploy → Production → uncheck “Use existing Build Cache”**.
+
+#### Cart broken on Vercel but works locally?
+
+Usually one of the `VITE_*` vars is missing from that deployment’s build.
+
+1. Confirm you are on the **Production** URL (not a Preview deployment), unless Preview also has the env vars.
+2. In Vercel → Project → Settings → Environment Variables, verify **`VITE_SHOPIFY_STORE_DOMAIN`** is set for Production. A common miss: token is set, domain is not — cart stays disabled even though products load via the public URL fallback.
+3. Redeploy Production **without** build cache.
+4. After deploy, the cart drawer / product page will name any missing `VITE_SHOPIFY_*` vars if config is still incomplete.
 
 ### DNS
 

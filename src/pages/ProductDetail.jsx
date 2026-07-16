@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../components/CartContext';
-import { formatMoney, getProductByHandle } from '../lib/shopify';
+import { formatMoney, getProductByHandle, storefrontConfigHint } from '../lib/shopify';
 
 export default function ProductDetail() {
   const { handle } = useParams();
@@ -186,10 +186,7 @@ export default function ProductDetail() {
             </button>
 
             {!configured && (
-              <p className="shop-status">
-                Add-to-cart requires Storefront API credentials in `.env`. You can still browse the
-                catalog.
-              </p>
+              <p className="shop-status">{storefrontConfigHint()}</p>
             )}
             {notice && <p className="shop-status">{notice}</p>}
           </div>

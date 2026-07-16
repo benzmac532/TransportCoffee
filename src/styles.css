@@ -1147,7 +1147,7 @@ h3,
 }
 
 .product-card .button {
-  margin-top: 0;
+  margin-top: 0.25rem;
   min-width: 0;
   width: 100%;
 }
@@ -1169,6 +1169,12 @@ h3,
   background: rgba(15, 33, 54, 0.06);
   border-color: var(--navy);
   color: var(--navy);
+}
+
+.shop-preview-all {
+  display: inline-flex;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 .product-card h3 a {

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Minus, Plus, ShoppingBag, X } from 'lucide-react';
-import { formatMoney } from '../lib/shopify';
+import { formatMoney, storefrontConfigHint } from '../lib/shopify';
 import { useCart } from './CartContext';
 
 export default function CartDrawer() {
@@ -36,8 +36,7 @@ export default function CartDrawer() {
 
         {!configured && (
           <p className="cart-drawer-note">
-            Cart checkout needs Shopify Storefront API credentials. Product browsing still works from
-            the live store catalog.
+            {storefrontConfigHint()} Product browsing still works from the live store catalog.
           </p>
         )}
 
