@@ -1,33 +1,34 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-
-const SHOP_BASE = 'https://transportcoffeeroasters.com';
-
-const featuredCoffees = [
-  {
-    name: 'Frequent Flyer',
-    notes: 'House blend (Brazil + Peru) · Medium roast · 12 oz',
-    price: '$18.00',
-    image: 'https://cdn.shopify.com/s/files/1/0963/8179/6639/files/858B0F21-B0FD-41DC-B409-129676FF9578.png?v=1782582557',
-    href: `${SHOP_BASE}/products/frequent-flyer`,
-  },
-  {
-    name: 'Ethiopia Danbi Udo',
-    notes: 'Natural process · Light roast · 12 oz',
-    price: '$21.00',
-    image: 'https://cdn.shopify.com/s/files/1/0963/8179/6639/files/IMG-1995.png?v=1782606822',
-    href: `${SHOP_BASE}/products/ethiopia-danbi-udo`,
-  },
-  {
-    name: 'Peru Minca Organic',
-    notes: 'Washed process · Light roast · 12 oz',
-    price: '$20.00',
-    image: 'https://cdn.shopify.com/s/files/1/0963/8179/6639/files/IMG-1994.png?v=1782606426',
-    href: `${SHOP_BASE}/products/peru-minca-organic`,
-  },
-];
+import { FEATURED_HANDLES, formatMoney, getProductsByHandles } from '../lib/shopify';
 
 export default function Home() {
+  const [featured, setFeatured] = useState([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoadingFeatured(true);
+      try {
+        const products = await getProductsByHandles(FEATURED_HANDLES);
+        if (!cancelled) setFeatured(products);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setFeatured([]);
+      } finally {
+        if (!cancelled) setLoadingFeatured(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <main>
       <section className="home-quad">
@@ -45,9 +46,9 @@ export default function Home() {
             <Link className="button" to="/subscriptions">
               Shop subscriptions
             </Link>
-            <a className="button ghost" href={`${SHOP_BASE}/collections/all`} target="_blank" rel="noreferrer">
+            <Link className="button ghost" to="/shop">
               Shop coffee
-            </a>
+            </Link>
           </div>
         </div>
         <div className="perc-hero-visual">
@@ -85,20 +86,48 @@ export default function Home() {
           <p className="eyebrow">From the shop</p>
           <h2>Coffee for the journey.</h2>
         </div>
-        <div className="product-grid">
-          {featuredCoffees.map((coffee) => (
-            <article className="product-card" key={coffee.name}>
-              <a className="product-art" href={coffee.href} target="_blank" rel="noreferrer">
-                <img src={coffee.image} alt={coffee.name} />
-              </a>
-              <h3>{coffee.name}</h3>
-              <p>{coffee.notes}</p>
-              <strong>{coffee.price}</strong>
-              <a className="button" href={coffee.href} target="_blank" rel="noreferrer">
-                Shop now <ArrowRight size={14} />
-              </a>
-            </article>
-          ))}
+        {loadingFeatured && <p className="shop-status">Loading featured coffees…</p>}
+        {!loadingFeatured && featured.length === 0 && (
+          <p className="shop-status">
+            Featured coffees will appear here once the Shopify catalog is reachable.
+          </p>
+        )}
+        {featured.length > 0 && (
+          <div className="product-grid">
+            {featured.map((product) => (
+              <article className="product-card" key={product.handle}>
+                <Link className="product-art" to={`/shop/${product.handle}`}>
+                  {product.image?.url ? (
+                    <img src={product.image.url} alt={product.image.altText || product.title} />
+                  ) : (
+                    <div className="product-art-placeholder" aria-hidden="true" />
+                  )}
+                </Link>
+                <h3>
+                  <Link to={`/shop/${product.handle}`}>{product.title}</Link>
+                </h3>
+                {product.description && (
+                  <p>
+                    {product.description.slice(0, 90)}
+                    {product.description.length > 90 ? '…' : ''}
+                  </p>
+                )}
+                {product.price && (
+                  <strong>
+                    {formatMoney(product.price.amount, product.price.currencyCode)}
+                  </strong>
+                )}
+                <Link className="button" to={`/shop/${product.handle}`}>
+                  Shop now <ArrowRight size={14} />
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
+        <div className="section-heading" style={{ marginTop: '2rem', marginBottom: 0 }}>
+          <Link className="button ghost" to="/shop">
+            View all products
+          </Link>
         </div>
       </section>
 

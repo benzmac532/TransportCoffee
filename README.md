@@ -1,22 +1,24 @@
 # Transport Coffee Roasters
 
-A multi-page coffee roaster website inspired by Perc Coffee's editorial layout,
-using Transport Coffee's bone/navy/copper color palette.
+A multi-page coffee roaster website with headless Shopify product browsing and checkout.
 
 ## Pages
 
-- **Home** — Perc-style stacked editorial sections with featured coffees
-- **About Us** — Brand story and mission
-- **Subscriptions** — Plan selection layout (checkout coming soon)
-- **Wholesale** — Inquiry form layout
-- **Contact Us** — Contact form and business details
+- **Home** — Editorial layout with featured coffees from Shopify
+- **Shop** — Product catalog, collections, and product detail
+- **About / Contact / Wholesale / Locations** — Brand and inquiry pages
+- **Subscriptions** — Plan selection layout (Shopify selling plans coming later)
+- **Policies** — Refund and shipping
 
 ## Run Locally
 
 ```bash
 npm install
+cp .env.example .env
 npm run dev
 ```
+
+See [SHOPIFY.md](./SHOPIFY.md) for Storefront API tokens, cart setup, and domain cutover.
 
 ## Build For Production
 
@@ -24,12 +26,12 @@ npm run dev
 npm run build
 ```
 
-The production-ready files are generated in `dist`.
+Output is in `dist`.
 
 ## Deploy
 
-This project works well with static hosts such as Vercel, Netlify, Cloudflare
-Pages, or GitHub Pages.
+Works with Vercel, Netlify, Cloudflare Pages, or GitHub Pages.
 
 - Build command: `npm run build`
 - Output directory: `dist`
+- Set `VITE_SHOPIFY_STORE_DOMAIN` and `VITE_SHOPIFY_STOREFRONT_TOKEN` in the host env

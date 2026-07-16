@@ -1,18 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react';
 import Logo from './Logo';
+import { useCart } from './CartContext';
+import { SHOP_COLLECTIONS } from '../lib/shopify';
 
-const SHOP_BASE = 'https://transportcoffeeroasters.com';
-
-const shopLinks = [
-  { label: 'All', href: `${SHOP_BASE}/collections/all`, external: true },
-  { label: 'Coffee', href: `${SHOP_BASE}/collections/all`, external: true },
-  { label: 'Subscribe', to: '/subscriptions' },
-  { label: 'Merch', href: `${SHOP_BASE}/collections/all`, external: true },
-  { label: 'Gift Cards', href: `${SHOP_BASE}/collections/all`, external: true },
-  { label: 'Brew Gear', href: `${SHOP_BASE}/collections/all`, external: true },
-];
+const shopLinks = SHOP_COLLECTIONS.map((item) => ({
+  label: item.label,
+  to: item.to,
+}));
 
 const moreLinks = [
   { label: 'About Us', to: '/about' },
@@ -65,6 +61,7 @@ export default function Layout() {
   const [shopOpen, setShopOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const navRef = useRef(null);
+  const { totalQuantity, openCart } = useCart();
 
   useEffect(() => {
     function handleClick(event) {
@@ -120,14 +117,18 @@ export default function Layout() {
           </NavLink>
         </nav>
         <div className="header-actions">
-          <a
-            className="header-shop-link"
-            href={`${SHOP_BASE}/collections/all`}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <Link className="header-shop-link" to="/shop">
             Visit shop
-          </a>
+          </Link>
+          <button
+            type="button"
+            className="cart-icon-button header-cart-button"
+            aria-label={`Open cart${totalQuantity ? `, ${totalQuantity} items` : ''}`}
+            onClick={openCart}
+          >
+            <ShoppingBag size={20} />
+            {totalQuantity > 0 && <span className="cart-count">{totalQuantity}</span>}
+          </button>
           <button
             type="button"
             className="menu-button"
@@ -145,38 +146,30 @@ export default function Layout() {
             Home
           </NavLink>
           <p className="mobile-nav-label">Shop</p>
-          {shopLinks.map((item) =>
-            item.to ? (
-              <Link key={item.label} to={item.to} onClick={closeAll}>
-                {item.label}
-              </Link>
-            ) : (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                onClick={closeAll}
-              >
-                {item.label}
-              </a>
-            ),
-          )}
+          {shopLinks.map((item) => (
+            <Link key={item.label} to={item.to} onClick={closeAll}>
+              {item.label}
+            </Link>
+          ))}
           <p className="mobile-nav-label">More</p>
-          {moreLinks.map((item) =>
-            item.to ? (
-              <Link key={item.label} to={item.to} onClick={closeAll}>
-                {item.label}
-              </Link>
-            ) : (
-              <a key={item.label} href={item.href} onClick={closeAll}>
-                {item.label}
-              </a>
-            ),
-          )}
+          {moreLinks.map((item) => (
+            <Link key={item.label} to={item.to} onClick={closeAll}>
+              {item.label}
+            </Link>
+          ))}
           <NavLink to="/subscriptions" onClick={closeAll}>
             Subscriptions
           </NavLink>
+          <button
+            type="button"
+            className="mobile-cart-link"
+            onClick={() => {
+              closeAll();
+              openCart();
+            }}
+          >
+            Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+          </button>
         </nav>
       )}
 
@@ -194,9 +187,7 @@ export default function Layout() {
           <Link to="/subscriptions">Subscriptions</Link>
           <Link to="/wholesale">Wholesale</Link>
           <Link to="/locations">Where to find us</Link>
-          <a href={`${SHOP_BASE}/collections/all`} target="_blank" rel="noreferrer">
-            Shop coffee
-          </a>
+          <Link to="/shop">Shop coffee</Link>
         </div>
         <div>
           <h3>Connect</h3>
