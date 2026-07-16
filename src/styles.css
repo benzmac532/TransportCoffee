@@ -1147,9 +1147,28 @@ h3,
 }
 
 .product-card .button {
-  margin-top: 0.25rem;
-  min-width: auto;
+  margin-top: 0;
+  min-width: 0;
   width: 100%;
+}
+
+.product-card-actions {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0.25rem;
+}
+
+.button.ghost-dark {
+  background: transparent;
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+.button.ghost-dark:hover:not(:disabled) {
+  background: rgba(15, 33, 54, 0.06);
+  border-color: var(--navy);
+  color: var(--navy);
 }
 
 .product-card h3 a {

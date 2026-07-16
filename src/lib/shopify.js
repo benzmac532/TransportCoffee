@@ -73,6 +73,21 @@ function mapStorefrontProduct(node) {
 function mapAjaxProduct(product) {
   const variant = product.variants?.[0];
   const image = product.images?.[0] || product.image;
+  const rawOptions = product.options || [];
+
+  const normalizedOptions = rawOptions.map((opt, index) => {
+    const name = typeof opt === 'string' ? opt : String(opt?.name || `Option ${index + 1}`);
+    const valuesFromOpt = typeof opt === 'object' && Array.isArray(opt.values) ? opt.values : null;
+    const values =
+      valuesFromOpt?.map(String) ||
+      [...new Set((product.variants || []).map((v) => v[`option${index + 1}`]).filter(Boolean).map(String))];
+    return {
+      id: typeof opt === 'object' && opt.id != null ? String(opt.id) : `option-${index}`,
+      name,
+      values,
+    };
+  });
+
   return {
     id: `gid://shopify/Product/${product.id}`,
     handle: product.handle,
@@ -95,16 +110,12 @@ function mapAjaxProduct(product) {
       availableForSale: v.available !== false,
       price: { amount: String(v.price), currencyCode: 'USD' },
       selectedOptions: [
-        v.option1 && { name: product.options?.[0] || 'Option', value: v.option1 },
-        v.option2 && { name: product.options?.[1] || 'Option', value: v.option2 },
-        v.option3 && { name: product.options?.[2] || 'Option', value: v.option3 },
+        v.option1 && { name: normalizedOptions[0]?.name || 'Option', value: String(v.option1) },
+        v.option2 && { name: normalizedOptions[1]?.name || 'Option', value: String(v.option2) },
+        v.option3 && { name: normalizedOptions[2]?.name || 'Option', value: String(v.option3) },
       ].filter(Boolean),
     })),
-    options: (product.options || []).map((name, index) => ({
-      id: `option-${index}`,
-      name,
-      values: [...new Set((product.variants || []).map((v) => v[`option${index + 1}`]).filter(Boolean))],
-    })),
+    options: normalizedOptions,
   };
 }
 

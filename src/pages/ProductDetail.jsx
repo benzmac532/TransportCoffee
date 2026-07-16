@@ -31,7 +31,11 @@ export default function ProductDetail() {
         setProduct(next);
         const initial = {};
         (next.options || []).forEach((option) => {
-          if (option.values?.[0]) initial[option.name] = option.values[0];
+          const name = typeof option.name === 'string' ? option.name : String(option.name || '');
+          const firstValue = option.values?.[0];
+          if (name && firstValue != null && typeof firstValue !== 'object') {
+            initial[name] = String(firstValue);
+          }
         });
         setSelectedOptions(initial);
       } catch (err) {
@@ -125,27 +129,33 @@ export default function ProductDetail() {
             {product.description && <p className="product-detail-desc">{product.description}</p>}
 
             {(product.options || [])
-              .filter((option) => option.values?.length > 1)
-              .map((option) => (
-                <label key={option.id || option.name} className="product-option">
-                  <span>{option.name}</span>
-                  <select
-                    value={selectedOptions[option.name] || ''}
-                    onChange={(event) =>
-                      setSelectedOptions((prev) => ({
-                        ...prev,
-                        [option.name]: event.target.value,
-                      }))
-                    }
-                  >
-                    {option.values.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+              .filter((option) => Array.isArray(option.values) && option.values.length > 1)
+              .map((option) => {
+                const optionName = typeof option.name === 'string' ? option.name : String(option.name || 'Option');
+                return (
+                  <label key={option.id || optionName} className="product-option">
+                    <span>{optionName}</span>
+                    <select
+                      value={selectedOptions[optionName] || ''}
+                      onChange={(event) =>
+                        setSelectedOptions((prev) => ({
+                          ...prev,
+                          [optionName]: event.target.value,
+                        }))
+                      }
+                    >
+                      {option.values.map((value) => {
+                        const label = typeof value === 'string' ? value : String(value);
+                        return (
+                          <option key={label} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </label>
+                );
+              })}
 
             <label className="product-option">
               <span>Quantity</span>
