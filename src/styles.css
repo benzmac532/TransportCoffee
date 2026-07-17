@@ -1377,6 +1377,53 @@ h3,
   color: var(--rust);
 }
 
+.shop-section-list {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+}
+
+.shop-product-section {
+  display: grid;
+  gap: 1.35rem;
+}
+
+.shop-section-title {
+  color: var(--copper);
+  display: inline-flex;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  font-weight: 800;
+  justify-self: center;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  padding-bottom: 0.35rem;
+  position: relative;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.shop-section-title::after {
+  background: currentColor;
+  bottom: 0;
+  content: '';
+  height: 1px;
+  left: 50%;
+  opacity: 0.45;
+  position: absolute;
+  transform: translateX(-50%);
+  transition: width 0.15s ease, opacity 0.15s ease;
+  width: 2.75rem;
+}
+
+.shop-section-title:hover {
+  color: var(--rust);
+}
+
+.shop-section-title:hover::after {
+  opacity: 0.8;
+  width: 100%;
+}
+
 .shop-grid {
   margin-top: 0.5rem;
 }

@@ -3,9 +3,12 @@ import { Link, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { getCollectionProducts, getProducts, SHOP_COLLECTIONS } from '../lib/shopify';
 
+const PRODUCT_KEY = (product) => product.id || product.handle;
+
 export default function Shop() {
   const { handle } = useParams();
   const [products, setProducts] = useState([]);
+  const [collectionSections, setCollectionSections] = useState([]);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,14 +22,32 @@ export default function Shop() {
     async function load() {
       setError('');
       try {
-        const list = handle
-          ? await getCollectionProducts(handle)
-          : await getProducts();
-        if (!cancelled) setProducts(list);
+        if (handle) {
+          const list = await getCollectionProducts(handle);
+          if (!cancelled) {
+            setProducts(list);
+            setCollectionSections([]);
+          }
+          return;
+        }
+
+        const allProducts = await getProducts();
+        const sections = await Promise.all(
+          SHOP_COLLECTIONS.filter((item) => item.handle).map(async (item) => ({
+            ...item,
+            products: await getCollectionProducts(item.handle),
+          })),
+        );
+
+        if (!cancelled) {
+          setProducts(allProducts);
+          setCollectionSections(sections.filter((section) => section.products.length > 0));
+        }
       } catch (err) {
         if (!cancelled) {
           setError(err.message || 'Could not load products.');
           setProducts([]);
+          setCollectionSections([]);
         }
       } finally {
         if (!cancelled) setHasLoaded(true);
@@ -38,6 +59,13 @@ export default function Shop() {
       cancelled = true;
     };
   }, [handle]);
+
+  const collectionProductKeys = new Set(
+    collectionSections.flatMap((section) => section.products.map(PRODUCT_KEY)),
+  );
+  const uncategorizedProducts = handle
+    ? products
+    : products.filter((product) => !collectionProductKeys.has(PRODUCT_KEY(product)));
 
   return (
     <main className={`page shop-page${isEmpty ? ' shop-page-empty' : ''}`}>
@@ -72,10 +100,27 @@ export default function Shop() {
             </div>
           )}
 
-          {products.length > 0 && (
+          {!handle && collectionSections.length > 0 && (
+            <div className="shop-section-list">
+              {collectionSections.map((section) => (
+                <section className="shop-product-section" key={section.handle}>
+                  <Link to={section.to} className="shop-section-title">
+                    {section.label}
+                  </Link>
+                  <div className="product-grid shop-grid">
+                    {section.products.map((product) => (
+                      <ProductCard key={PRODUCT_KEY(product)} product={product} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+
+          {uncategorizedProducts.length > 0 && (
             <div className="product-grid shop-grid">
-              {products.map((product) => (
-                <ProductCard key={product.id || product.handle} product={product} />
+              {uncategorizedProducts.map((product) => (
+                <ProductCard key={PRODUCT_KEY(product)} product={product} />
               ))}
             </div>
           )}

@@ -56,6 +56,12 @@ export function formatMoney(amount, currencyCode = 'USD') {
   }).format(value);
 }
 
+function sortProductsByTitle(products) {
+  return [...products].sort((a, b) =>
+    String(a?.title || '').localeCompare(String(b?.title || ''), undefined, { sensitivity: 'base' }),
+  );
+}
+
 function mapStorefrontProduct(node) {
   if (!node) return null;
   const variant = node.selectedOrFirstAvailableVariant || node.variants?.nodes?.[0];
@@ -241,7 +247,7 @@ async function fetchPublicProducts(limit = 50) {
   const response = await fetch(`${publicStoreUrl}/products.json?limit=${limit}`);
   if (!response.ok) throw new Error('Could not load products from Shopify storefront.');
   const data = await response.json();
-  return (data.products || []).map(mapAjaxProduct);
+  return sortProductsByTitle((data.products || []).map(mapAjaxProduct));
 }
 
 async function fetchPublicProductByHandle(handle) {
@@ -261,7 +267,7 @@ async function fetchPublicCollectionProducts(handle, limit = 50) {
     throw new Error(`Could not load collection "${handle}".`);
   }
   const data = await response.json();
-  return (data.products || []).map(mapAjaxProduct);
+  return sortProductsByTitle((data.products || []).map(mapAjaxProduct));
 }
 
 export async function getProducts({ first = 50 } = {}) {
@@ -280,7 +286,7 @@ export async function getProducts({ first = 50 } = {}) {
     { first },
   );
 
-  return (data.products?.nodes || []).map(mapStorefrontProduct);
+  return sortProductsByTitle((data.products?.nodes || []).map(mapStorefrontProduct));
 }
 
 export async function getProductByHandle(handle) {
@@ -333,7 +339,7 @@ export async function getCollectionProducts(handle, { first = 50 } = {}) {
   // Missing collection → empty list (do not fall back to all products).
   if (!data.collection) return [];
 
-  return (data.collection.products?.nodes || []).map(mapStorefrontProduct);
+  return sortProductsByTitle((data.collection.products?.nodes || []).map(mapStorefrontProduct));
 }
 
 export function getStoredCartId() {
