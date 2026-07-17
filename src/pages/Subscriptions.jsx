@@ -148,7 +148,7 @@ export default function Subscriptions() {
               ))}
             </ul>
             <button type="button" className="button" disabled>
-              Start subscription (Shopify link coming soon)
+              Start subscription (Coming soon)
             </button>
           </div>
         </section>
