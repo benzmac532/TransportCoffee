@@ -6,18 +6,17 @@ import { getCollectionProducts, getProducts, SHOP_COLLECTIONS } from '../lib/sho
 export default function Shop() {
   const { handle } = useParams();
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState('');
 
   const collectionMeta = SHOP_COLLECTIONS.find((item) => item.handle === handle);
   const title = collectionMeta?.label || (handle ? handle.replace(/-/g, ' ') : 'All products');
-  const isEmpty = !loading && !error && products.length === 0;
+  const isEmpty = hasLoaded && !error && products.length === 0;
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      setLoading(true);
       setError('');
       try {
         const list = handle
@@ -30,7 +29,7 @@ export default function Shop() {
           setProducts([]);
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setHasLoaded(true);
       }
     }
 
@@ -64,7 +63,6 @@ export default function Shop() {
             ))}
           </div>
 
-          {loading && <p className="shop-status">Loading products…</p>}
           {error && <p className="shop-status shop-status-error">{error}</p>}
 
           {isEmpty && (
@@ -74,7 +72,7 @@ export default function Shop() {
             </div>
           )}
 
-          {!loading && products.length > 0 && (
+          {products.length > 0 && (
             <div className="product-grid shop-grid">
               {products.map((product) => (
                 <ProductCard key={product.id || product.handle} product={product} />
