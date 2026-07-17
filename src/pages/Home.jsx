@@ -50,11 +50,11 @@ export default function Home() {
             <p className="eyebrow">Est. 2026</p>
             <h1>
               <span>Coffee that</span>
-              <span>moves you</span>
+              <span>moves you.</span>
             </h1>
             <p className="lead">
               We source thoughtful coffees and roast them with every ounce of care.
-              Coffee should fuel your journey — let&apos;s move forward together.
+              Coffee should fuel your journey. Let&apos;s move forward together.
             </p>
             <div className="hero-actions">
               <Link className="button" to="/subscriptions">
@@ -87,7 +87,7 @@ export default function Home() {
             <span>for every journey.</span>
           </h2>
           <p>
-            We craft coffee with intention — designed to forge the path from here
+            We craft coffee with intention, designed to forge the path from here
             to there. Built for momentum and grounded in quality.
           </p>
           <Link className="button" to="/about">
@@ -129,14 +129,16 @@ export default function Home() {
                     {product.description.length > 90 ? '…' : ''}
                   </p>
                 )}
-                {product.price && (
-                  <strong>
-                    {formatMoney(product.price.amount, product.price.currencyCode)}
-                  </strong>
-                )}
-                <Link className="button" to={`/shop/${product.handle}`}>
-                  Shop now <ArrowRight size={14} />
-                </Link>
+                <div className="product-card-footer">
+                  {product.price && (
+                    <strong>
+                      {formatMoney(product.price.amount, product.price.currencyCode)}
+                    </strong>
+                  )}
+                  <Link className="button" to={`/shop/${product.handle}`}>
+                    Shop now <ArrowRight size={14} />
+                  </Link>
+                </div>
               </article>
             ))}
           </div>
@@ -181,7 +183,7 @@ export default function Home() {
             <span>inquiries.</span>
           </h2>
           <p>
-            Cafés, offices, and retailers — let&apos;s build a coffee program that
+            Cafés, offices, and retailers. Let&apos;s build a coffee program that
             moves your business forward with quality and consistency.
           </p>
           <Link className="button" to="/wholesale">

@@ -16,9 +16,9 @@ const businessTypes = [
 
 const volumeOptions = [
   'Under 10 lbs / month',
-  '10–25 lbs / month',
-  '25–50 lbs / month',
-  '50–100 lbs / month',
+  '10-25 lbs / month',
+  '25-50 lbs / month',
+  '50-100 lbs / month',
   '100+ lbs / month',
 ];
 

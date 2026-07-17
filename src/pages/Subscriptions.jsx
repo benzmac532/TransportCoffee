@@ -15,7 +15,7 @@ const plans = [
     name: 'Wanderlust',
     price: '$34',
     interval: 'per delivery',
-    description: 'Two 12oz bags — perfect for households and heavy brewers.',
+    description: 'Two 12oz bags, perfect for households and heavy brewers.',
     coffees: ['Frequent Flyer + rotating origin', 'Best value for daily drinkers'],
     featured: true,
   },
@@ -70,7 +70,7 @@ export default function Subscriptions() {
               $5 flat-rate
               <span>on every delivery.</span>
             </h2>
-            <p>Flat $5 shipping on every refill — no surprise fees.</p>
+            <p>Flat $5 shipping on every refill with no surprise fees.</p>
 
             <div className="subscription-options">
               <div className="option-group">

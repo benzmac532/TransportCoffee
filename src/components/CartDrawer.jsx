@@ -104,7 +104,7 @@ export default function CartDrawer() {
               <div className="cart-subtotal">
                 <span>Subtotal</span>
                 <strong>
-                  {subtotal ? formatMoney(subtotal.amount, subtotal.currencyCode) : '—'}
+                  {subtotal ? formatMoney(subtotal.amount, subtotal.currencyCode) : '-'}
                 </strong>
               </div>
               <p className="cart-drawer-note">Taxes and shipping calculated at Shopify checkout.</p>

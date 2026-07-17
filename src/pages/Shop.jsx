@@ -11,6 +11,7 @@ export default function Shop() {
 
   const collectionMeta = SHOP_COLLECTIONS.find((item) => item.handle === handle);
   const title = collectionMeta?.label || (handle ? handle.replace(/-/g, ' ') : 'All products');
+  const isEmpty = !loading && !error && products.length === 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -40,14 +41,14 @@ export default function Shop() {
   }, [handle]);
 
   return (
-    <main className="page shop-page">
+    <main className={`page shop-page${isEmpty ? ' shop-page-empty' : ''}`}>
       <div className="shop-mosaic">
         <section className="page-hero">
           <p className="eyebrow">Shop</p>
           <h1>{title}</h1>
         </section>
 
-        <section className="shop-catalog">
+        <section className={`shop-catalog${isEmpty ? ' shop-catalog-empty' : ''}`}>
           <div className="shop-collection-nav" aria-label="Shop collections">
             <Link to="/shop" className={!handle ? 'active' : undefined}>
               All
@@ -66,8 +67,11 @@ export default function Shop() {
           {loading && <p className="shop-status">Loading products…</p>}
           {error && <p className="shop-status shop-status-error">{error}</p>}
 
-          {!loading && !error && products.length === 0 && (
-            <p className="shop-status">No products found in this collection yet.</p>
+          {isEmpty && (
+            <div className="shop-coming-soon">
+              <p className="eyebrow">Coming soon</p>
+              <h2>{title}</h2>
+            </div>
           )}
 
           {!loading && products.length > 0 && (

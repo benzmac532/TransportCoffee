@@ -47,19 +47,21 @@ export default function ProductCard({ product }) {
           {product.description.length > 110 ? '…' : ''}
         </p>
       )}
-      {price && <strong>{price}</strong>}
-      <div className="product-card-actions">
-        <Link className="button ghost-dark" to={`/shop/${product.handle}`}>
-          Learn more
-        </Link>
-        <button
-          type="button"
-          className="button"
-          disabled={adding || cartLoading || !canAdd || !configured}
-          onClick={handleAddToCart}
-        >
-          {!canAdd ? 'Sold out' : adding ? 'Adding…' : 'Add to cart'}
-        </button>
+      <div className="product-card-footer">
+        {price && <strong>{price}</strong>}
+        <div className="product-card-actions">
+          <Link className="button ghost-dark" to={`/shop/${product.handle}`}>
+            Learn more
+          </Link>
+          <button
+            type="button"
+            className="button"
+            disabled={adding || cartLoading || !canAdd || !configured}
+            onClick={handleAddToCart}
+          >
+            {!canAdd ? 'Sold out' : adding ? 'Adding…' : 'Add to cart'}
+          </button>
+        </div>
       </div>
     </article>
   );

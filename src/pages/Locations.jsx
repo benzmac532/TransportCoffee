@@ -2,7 +2,7 @@ const locations = [
   {
     name: 'The Shoals area',
     area: 'Florence / Muscle Shoals, AL',
-    note: 'More retail partners coming soon — check back or email us for the latest list.',
+    note: 'More retail partners coming soon. Check back or email us for the latest list.',
   },
 ];
 

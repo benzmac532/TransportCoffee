@@ -4,7 +4,7 @@ export default function About() {
       <div className="about-mosaic">
         <section className="page-hero">
           <p className="eyebrow">About Transport Coffee Roasters</p>
-          <h1>Coffee that moves you</h1>
+          <h1>Coffee that moves you.</h1>
         </section>
 
         <section className="about-feature">
@@ -19,7 +19,7 @@ export default function About() {
 
           <div className="prose about-copy">
             <p className="about-lead">
-              At Transport Coffee Roasters, we craft coffee with intention—designed to
+              At Transport Coffee Roasters, we craft coffee with intention, designed to
               forge the path from here to there. Built for momentum and grounded in
               quality, we believe in coffee that moves you.
             </p>
@@ -44,7 +44,7 @@ export default function About() {
             <p>
               Our mission is simple: to craft exceptional coffee that inspires
               connection, fuels ambition, and supports the momentum that carries people
-              forward. We believe coffee should do more than taste good—it should
+              forward. We believe coffee should do more than taste good. It should
               elevate your day, spark conversation, and help you move toward what
               matters most.
             </p>
@@ -57,7 +57,7 @@ export default function About() {
 
             <div className="prose-signoff">
               <strong>Transport Coffee Roasters</strong>
-              <span>Coffee that moves you</span>
+              <span>Coffee that moves you.</span>
             </div>
           </div>
         </section>

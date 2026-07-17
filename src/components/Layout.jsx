@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react';
-import Logo from './Logo';
+import LogoStack from './LogoStack';
 import { useCart } from './CartContext';
 import { SHOP_COLLECTIONS } from '../lib/shopify';
 
@@ -82,9 +82,9 @@ export default function Layout() {
   }
 
   return (
-    <>
+    <div className="site-shell">
       <header className="site-header">
-        <Logo />
+        <LogoStack />
         <nav className="desktop-nav" aria-label="Main navigation" ref={navRef}>
           <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : undefined)}>
             Home
@@ -177,10 +177,10 @@ export default function Layout() {
 
       <footer className="site-footer">
         <div className="footer-brand">
-          <Logo />
-          <p>Coffee that moves you</p>
+          <LogoStack />
+          <p>Coffee that moves you.</p>
         </div>
-        <div>
+        <nav className="footer-explore" aria-label="Footer navigation">
           <h3>Explore</h3>
           <Link to="/about">About Us</Link>
           <Link to="/contact">Contact Us</Link>
@@ -188,8 +188,8 @@ export default function Layout() {
           <Link to="/wholesale">Wholesale</Link>
           <Link to="/locations">Where to find us</Link>
           <Link to="/shop">Shop coffee</Link>
-        </div>
-        <div>
+        </nav>
+        <div className="footer-connect">
           <h3>Connect</h3>
           <a href="mailto:transportcoffeeroasters@gmail.com">
             transportcoffeeroasters@gmail.com
@@ -204,6 +204,6 @@ export default function Layout() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

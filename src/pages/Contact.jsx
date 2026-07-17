@@ -50,7 +50,7 @@ export default function Contact() {
           <div className="contact-info">
             <h2>Get in touch</h2>
             <p>
-              Drop us a line anytime — questions, feedback, or just coffee talk.
+              Drop us a line anytime with questions, feedback, or just coffee talk.
               We love hearing from you and we&apos;ll reply soon.
             </p>
 
