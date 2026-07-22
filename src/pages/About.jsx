@@ -1,23 +1,25 @@
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
+
 export default function About() {
   return (
     <main className="page about-page">
       <div className="about-mosaic">
-        <section className="page-hero">
-          <p className="eyebrow">About Transport Coffee Roasters</p>
-          <h1>Coffee that moves you.</h1>
-        </section>
+        <PageHero eyebrow="About Transport Coffee Roasters" title="Coffee that moves you." />
 
         <section className="about-feature">
-          <div className="about-photo-col">
+          <Reveal className="about-photo-col" variant="left" delaySteps={1}>
             <aside className="about-photo">
               <img
                 src="/nature-coffee.png"
                 alt="Holding a coffee mug overlooking a mountain valley at golden hour"
+                loading="lazy"
+                decoding="async"
               />
             </aside>
-          </div>
+          </Reveal>
 
-          <div className="prose about-copy">
+          <Reveal className="prose about-copy" variant="up" delaySteps={2}>
             <p className="about-lead">
               At Transport Coffee Roasters, we craft coffee with intention, designed to
               forge the path from here to there. Built for momentum and grounded in
@@ -59,22 +61,29 @@ export default function About() {
               <strong>Transport Coffee Roasters</strong>
               <span>Coffee that moves you.</span>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="values-strip" aria-label="Brand values">
-          <article>
-            <h2>Thoughtful Sourcing</h2>
-            <p>Quality coffees from partners we trust, roasted with care.</p>
-          </article>
-          <article>
-            <h2>Expert Roasting</h2>
-            <p>Small-batch precision for consistency in every cup.</p>
-          </article>
-          <article>
-            <h2>Real Connection</h2>
-            <p>Coffee that sparks conversation and fuels ambition.</p>
-          </article>
+          {[
+            {
+              title: 'Thoughtful Sourcing',
+              body: 'Quality coffees from partners we trust, roasted with care.',
+            },
+            {
+              title: 'Expert Roasting',
+              body: 'Small-batch precision for consistency in every cup.',
+            },
+            {
+              title: 'Real Connection',
+              body: 'Coffee that sparks conversation and fuels ambition.',
+            },
+          ].map((value, index) => (
+            <Reveal key={value.title} as="article" delaySteps={index} variant="up">
+              <h2>{value.title}</h2>
+              <p>{value.body}</p>
+            </Reveal>
+          ))}
         </section>
       </div>
     </main>

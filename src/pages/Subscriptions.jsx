@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
 
 const plans = [
   {
@@ -46,31 +48,31 @@ export default function Subscriptions() {
   return (
     <main className="page subscriptions-page">
       <div className="subscriptions-mosaic">
-        <section className="page-hero">
-          <p className="eyebrow">Subscriptions</p>
-          <h1>
-            <span>Fresh Coffee</span>
-            <span>on your</span>
-            <span>Schedule.</span>
-          </h1>
-        </section>
+        <PageHero
+          eyebrow="Subscriptions"
+          titleLines={['Fresh Coffee', 'on your', 'Schedule.']}
+        />
 
         <section className="subs-feature">
-          <div className="subs-photo-col">
+          <Reveal className="subs-photo-col" variant="left" delaySteps={1}>
             <aside className="subs-visual">
               <img
                 src="/roaster-cooling.png"
                 alt="Freshly roasted coffee beans cooling in a roasting bin"
+                loading="lazy"
+                decoding="async"
               />
             </aside>
-          </div>
-          <div className="subs-shipping">
-            <p className="eyebrow">Shipping</p>
-            <h2>
-              $5 flat-rate
-              <span>on every delivery.</span>
-            </h2>
-            <p>Flat $5 shipping on every refill with no surprise fees.</p>
+          </Reveal>
+          <Reveal className="subs-shipping" variant="up" delaySteps={2}>
+            <div className="subs-shipping-copy">
+              <p className="eyebrow">Shipping</p>
+              <h2>
+                $5 flat-rate
+                <span>on every delivery.</span>
+              </h2>
+              <p>Flat $5 shipping on every refill with no surprise fees.</p>
+            </div>
 
             <div className="subscription-options">
               <div className="option-group">
@@ -105,14 +107,17 @@ export default function Subscriptions() {
                 </div>
               </div>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="subs-plans-band" aria-label="Subscription plans">
           <div className="plan-grid">
-            {plans.map((plan) => (
-              <button
+            {plans.map((plan, index) => (
+              <Reveal
+                as="button"
                 key={plan.id}
+                delaySteps={index}
+                variant="up"
                 type="button"
                 className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
                 onClick={() => setSelectedPlan(plan.id)}
@@ -128,29 +133,31 @@ export default function Subscriptions() {
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
-              </button>
+              </Reveal>
             ))}
           </div>
         </section>
 
         <section className="subs-options-band">
-          <div className="perks-section">
+          <Reveal className="perks-section" variant="up">
             <div className="section-heading">
               <p className="eyebrow">Member perks</p>
               <h2>Why subscribe?</h2>
             </div>
             <ul className="perks-list">
-              {perks.map((perk) => (
-                <li key={perk}>
+              {perks.map((perk, index) => (
+                <Reveal as="li" key={perk} delaySteps={index} variant="soft">
                   <Check size={18} />
                   {perk}
-                </li>
+                </Reveal>
               ))}
             </ul>
-            <button type="button" className="button" disabled>
-              Start subscription (Coming soon)
-            </button>
-          </div>
+            <Reveal delaySteps={perks.length} variant="up">
+              <button type="button" className="button" disabled>
+                Start subscription (Coming soon)
+              </button>
+            </Reveal>
+          </Reveal>
         </section>
       </div>
     </main>

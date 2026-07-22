@@ -1,3 +1,6 @@
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
+
 const locations = [
   {
     name: 'The Shoals area',
@@ -10,20 +13,17 @@ export default function Locations() {
   return (
     <main className="page locations-page">
       <div className="locations-mosaic">
-        <section className="page-hero">
-          <p className="eyebrow">Where to find us</p>
-          <h1>Find Transport nearby.</h1>
-        </section>
+        <PageHero eyebrow="Where to find us" title="Find Transport nearby." />
 
         <section className="locations-layout">
-          <div className="locations-list">
+          <Reveal className="locations-list" variant="up" delaySteps={1}>
             <h2>Retail partners</h2>
-            {locations.map((place) => (
-              <article key={place.name} className="location-card">
+            {locations.map((place, index) => (
+              <Reveal key={place.name} as="article" className="location-card" delaySteps={index} variant="up">
                 <h3>{place.name}</h3>
                 <p>{place.area}</p>
                 <p>{place.note}</p>
-              </article>
+              </Reveal>
             ))}
             <p>
               Know a shop that should carry us? Email{' '}
@@ -32,9 +32,9 @@ export default function Locations() {
               </a>
               .
             </p>
-          </div>
+          </Reveal>
 
-          <div className="map-frame">
+          <Reveal className="map-frame" variant="scale" delaySteps={2}>
             <iframe
               title="The Shoals, Alabama map"
               src="https://www.openstreetmap.org/export/embed.html?bbox=-87.85%2C34.70%2C-87.50%2C34.90&amp;layer=mapnik&amp;marker=34.7998%2C-87.6773"
@@ -49,7 +49,7 @@ export default function Locations() {
             >
               Open full map
             </a>
-          </div>
+          </Reveal>
         </section>
       </div>
     </main>

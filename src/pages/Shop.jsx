@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import Reveal from '../components/Reveal';
+import PageHero from '../components/PageHero';
 import ProductCard from '../components/ProductCard';
 import { getCollectionProducts, getProducts, SHOP_COLLECTIONS } from '../lib/shopify';
 
@@ -70,13 +72,10 @@ export default function Shop() {
   return (
     <main className={`page shop-page${isEmpty ? ' shop-page-empty' : ''}`}>
       <div className="shop-mosaic">
-        <section className="page-hero">
-          <p className="eyebrow">Shop</p>
-          <h1>{title}</h1>
-        </section>
+        <PageHero eyebrow="Shop" title={title} />
 
         <section className={`shop-catalog${isEmpty ? ' shop-catalog-empty' : ''}`}>
-          <div className="shop-collection-nav" aria-label="Shop collections">
+          <Reveal className="shop-collection-nav" variant="fade" delaySteps={1} aria-label="Shop collections">
             <Link to="/shop" className={!handle ? 'active' : undefined}>
               All
             </Link>
@@ -89,38 +88,48 @@ export default function Shop() {
                 {item.label}
               </Link>
             ))}
-          </div>
+          </Reveal>
 
           {error && <p className="shop-status shop-status-error">{error}</p>}
 
           {isEmpty && (
-            <div className="shop-coming-soon">
+            <Reveal className="shop-coming-soon" variant="up">
               <p className="eyebrow">Coming soon</p>
               <h2>{title}</h2>
-            </div>
+            </Reveal>
           )}
 
           {!handle && collectionSections.length > 0 && (
             <div className="shop-section-list">
-              {collectionSections.map((section) => (
-                <section className="shop-product-section" key={section.handle}>
+              {collectionSections.map((section, sectionIndex) => (
+                <Reveal
+                  as="section"
+                  className="shop-product-section"
+                  key={section.handle}
+                  delaySteps={sectionIndex}
+                  variant="up"
+                >
                   <Link to={section.to} className="shop-section-title">
                     {section.label}
                   </Link>
                   <div className="product-grid shop-grid">
-                    {section.products.map((product) => (
-                      <ProductCard key={PRODUCT_KEY(product)} product={product} />
+                    {section.products.map((product, index) => (
+                      <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
+                        <ProductCard product={product} />
+                      </Reveal>
                     ))}
                   </div>
-                </section>
+                </Reveal>
               ))}
             </div>
           )}
 
           {uncategorizedProducts.length > 0 && (
             <div className="product-grid shop-grid">
-              {uncategorizedProducts.map((product) => (
-                <ProductCard key={PRODUCT_KEY(product)} product={product} />
+              {uncategorizedProducts.map((product, index) => (
+                <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
+                  <ProductCard product={product} />
+                </Reveal>
               ))}
             </div>
           )}

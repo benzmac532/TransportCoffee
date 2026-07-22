@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Mail, MapPin } from 'lucide-react';
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
 import {
   CONTACT_EMAIL,
   buildContactEmail,
@@ -41,13 +43,10 @@ export default function Contact() {
   return (
     <main className="page contact-page">
       <div className="contact-mosaic">
-        <section className="page-hero">
-          <p className="eyebrow">Contact Us</p>
-          <h1>Let&apos;s connect.</h1>
-        </section>
+        <PageHero eyebrow="Contact Us" title="Let's connect." />
 
         <section className="contact-layout">
-          <div className="contact-info">
+          <Reveal className="contact-info" variant="up" delaySteps={1}>
             <h2>Get in touch</h2>
             <p>
               Drop us a line anytime with questions, feedback, or just coffee talk.
@@ -70,9 +69,9 @@ export default function Contact() {
                 </div>
               </li>
             </ul>
-          </div>
+          </Reveal>
 
-          <div className="form-card">
+          <Reveal className="form-card" variant="up" delaySteps={2}>
             {submitted ? (
               <div className="form-success">
                 <h2>Thanks!</h2>
@@ -133,7 +132,7 @@ export default function Contact() {
                 </button>
               </form>
             )}
-          </div>
+          </Reveal>
         </section>
       </div>
     </main>

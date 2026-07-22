@@ -176,31 +176,35 @@ export default function Layout() {
       <Outlet />
 
       <footer className="site-footer">
-        <div className="footer-brand">
-          <LogoStack />
-          <p>Coffee that moves you.</p>
-        </div>
-        <nav className="footer-explore" aria-label="Footer navigation">
-          <h3>Explore</h3>
-          <Link to="/about">About Us</Link>
-          <Link to="/contact">Contact Us</Link>
-          <Link to="/subscriptions">Subscriptions</Link>
-          <Link to="/wholesale">Wholesale</Link>
-          <Link to="/locations">Where to find us</Link>
-          <Link to="/shop">Shop coffee</Link>
-        </nav>
-        <div className="footer-connect">
-          <h3>Connect</h3>
-          <a href="mailto:transportcoffeeroasters@gmail.com">
-            transportcoffeeroasters@gmail.com
-          </a>
-          <p className="footer-note">The Shoals, AL</p>
-        </div>
-        <div className="footer-legal">
-          <p>&copy; {new Date().getFullYear()} Transport Coffee Roasters</p>
-          <div className="footer-links">
-            <Link to="/refund-policy">Refund Policy</Link>
-            <Link to="/shipping-policy">Shipping Policy</Link>
+        <div className="footer-inner">
+          <div className="footer-main">
+            <div className="footer-brand">
+              <LogoStack />
+              <p>Coffee that moves you.</p>
+            </div>
+            <nav className="footer-explore" aria-label="Footer navigation">
+              <h3>Explore</h3>
+              <Link to="/about">About Us</Link>
+              <Link to="/contact">Contact Us</Link>
+              <Link to="/subscriptions">Subscriptions</Link>
+              <Link to="/wholesale">Wholesale</Link>
+              <Link to="/locations">Where to find us</Link>
+              <Link to="/shop">Shop coffee</Link>
+            </nav>
+            <div className="footer-connect">
+              <h3>Connect</h3>
+              <a href="mailto:transportcoffeeroasters@gmail.com">
+                transportcoffeeroasters@gmail.com
+              </a>
+              <p className="footer-note">The Shoals, AL</p>
+            </div>
+          </div>
+          <div className="footer-legal">
+            <p>&copy; {new Date().getFullYear()} Transport Coffee Roasters</p>
+            <div className="footer-links">
+              <Link to="/refund-policy">Refund Policy</Link>
+              <Link to="/shipping-policy">Shipping Policy</Link>
+            </div>
           </div>
         </div>
       </footer>

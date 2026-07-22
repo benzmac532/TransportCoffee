@@ -1,11 +1,11 @@
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
+
 export default function RefundPolicy() {
   return (
     <main className="page policy-page">
-      <section className="page-hero">
-        <p className="eyebrow">Policies</p>
-        <h1>Refund Policy</h1>
-      </section>
-      <section className="page-content prose">
+      <PageHero eyebrow="Policies" title="Refund Policy" />
+      <Reveal as="section" className="page-content prose" variant="up" delaySteps={1}>
         <p>
           Hello everyone! We unfortunately cannot accept returns on coffee since
           it is a food product. However, if you aren&apos;t pleased with the
@@ -20,7 +20,7 @@ export default function RefundPolicy() {
           </a>
           .
         </p>
-      </section>
+      </Reveal>
     </main>
   );
 }

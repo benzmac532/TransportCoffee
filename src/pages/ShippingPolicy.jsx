@@ -1,11 +1,11 @@
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
+
 export default function ShippingPolicy() {
   return (
     <main className="page policy-page">
-      <section className="page-hero">
-        <p className="eyebrow">Policies</p>
-        <h1>Shipping Policy</h1>
-      </section>
-      <section className="page-content prose">
+      <PageHero eyebrow="Policies" title="Shipping Policy" />
+      <Reveal as="section" className="page-content prose" variant="up" delaySteps={1}>
         <p>
           We roast and ship from The Shoals, AL with care so your coffee arrives
           fresh and ready for the road ahead.
@@ -39,7 +39,7 @@ export default function ShippingPolicy() {
             swap this copy for that version anytime.
           </em>
         </p>
-      </section>
+      </Reveal>
     </main>
   );
 }

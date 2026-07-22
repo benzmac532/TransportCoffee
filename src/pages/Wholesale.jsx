@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import PageHero from '../components/PageHero';
+import Reveal from '../components/Reveal';
 import {
   CONTACT_EMAIL,
   buildWholesaleEmail,
@@ -48,31 +50,32 @@ export default function Wholesale() {
   return (
     <main className="page wholesale-page">
       <div className="wholesale-mosaic">
-        <section className="page-hero">
-          <p className="eyebrow">Wholesale</p>
-          <h1>
-            <span>Partnerships that move</span>
-            <span>coffee forward.</span>
-          </h1>
-        </section>
+        <PageHero
+          eyebrow="Wholesale"
+          titleLines={['Partnerships that move', 'coffee forward.']}
+        />
 
         <section className="wholesale-feature">
-          <div className="wholesale-photo-col">
+          <Reveal className="wholesale-photo-col" variant="left" delaySteps={1}>
             <aside className="wholesale-visual">
               <img
                 src="/bean-bins.png"
                 alt="Coffee beans in wooden retail bins with tasting notes"
+                loading="lazy"
+                decoding="async"
               />
             </aside>
-          </div>
+          </Reveal>
 
-          <div className="wholesale-info">
-            <p className="eyebrow">Partnerships</p>
-            <h2>Who we work with</h2>
-            <p>
-              We partner with cafés, restaurants, offices, and retailers who care
-              about quality, consistency, and the story behind every cup.
-            </p>
+          <Reveal className="wholesale-info" variant="up" delaySteps={2}>
+            <div className="wholesale-info-copy">
+              <p className="eyebrow">Partnerships</p>
+              <h2>Who we work with</h2>
+              <p>
+                We partner with cafés, restaurants, offices, and retailers who care
+                about quality, consistency, and the story behind every cup.
+              </p>
+            </div>
             <ul className="info-list">
               <li>Freshly roasted, small-batch coffee</li>
               <li>Custom blend and private label options</li>
@@ -80,11 +83,11 @@ export default function Wholesale() {
               <li>Flexible delivery schedules</li>
               <li>Competitive wholesale pricing</li>
             </ul>
-          </div>
+          </Reveal>
         </section>
 
         <section className="wholesale-form-band" aria-label="Wholesale inquiry">
-          <div className="form-card wholesale-form-card">
+          <Reveal className="form-card wholesale-form-card" variant="up">
             {submitted ? (
               <div className="form-success">
                 <h2>Thanks!</h2>
@@ -181,7 +184,7 @@ export default function Wholesale() {
                 </button>
               </form>
             )}
-          </div>
+          </Reveal>
         </section>
       </div>
     </main>

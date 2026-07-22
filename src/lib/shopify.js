@@ -18,6 +18,7 @@ export const FEATURED_HANDLES = [
   'frequent-flyer',
   'ethiopia-danbi-udo',
   'peru-minca-organic',
+  'colombia-honey-process',
 ];
 
 export const SHOP_COLLECTIONS = [
