@@ -4,9 +4,14 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import { FEATURED_HANDLES, formatMoney, getProductsByHandles } from '../lib/shopify';
 
+const CONTACT_STACKED_QUERY = '(max-width: 680px)';
+
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [contactStacked, setContactStacked] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(CONTACT_STACKED_QUERY).matches : false,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -30,10 +35,18 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const media = window.matchMedia(CONTACT_STACKED_QUERY);
+    const sync = () => setContactStacked(media.matches);
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
+
   return (
     <main>
       <section className="home-quad">
-        <div className="perc-hero-copy">
+        <Reveal className="perc-hero-copy" variant="left" delaySteps={0} as="div">
           <div className="perc-hero-media" aria-hidden="true">
             <video
               className="perc-hero-video"
@@ -48,41 +61,33 @@ export default function Home() {
             </video>
           </div>
           <div className="perc-hero-content">
-            <Reveal variant="soft" delaySteps={0}>
-              <p className="eyebrow">Est. 2026</p>
-            </Reveal>
-            <Reveal variant="up" delaySteps={1}>
-              <h1>
-                <span>Coffee that</span>
-                <span>moves you.</span>
-              </h1>
-            </Reveal>
-            <Reveal variant="up" delaySteps={2}>
-              <p className="lead">
-                We source thoughtful coffees and roast them with every ounce of care.
-                Coffee should fuel your journey. Let&apos;s move forward together.
-              </p>
-            </Reveal>
-            <Reveal variant="up" delaySteps={3}>
-              <div className="hero-actions">
-                <Link className="button" to="/subscriptions">
-                  Shop subscriptions
-                </Link>
-                <Link className="button ghost" to="/shop">
-                  Shop coffee
-                </Link>
-              </div>
-            </Reveal>
+            <p className="eyebrow">Est. 2026</p>
+            <h1>
+              <span>Coffee that</span>
+              <span>moves you.</span>
+            </h1>
+            <p className="lead">
+              We source thoughtful coffees and roast them with every ounce of care.
+              Coffee should fuel your journey. Let&apos;s move forward together.
+            </p>
+            <div className="hero-actions">
+              <Link className="button" to="/subscriptions">
+                Shop subscriptions
+              </Link>
+              <Link className="button ghost" to="/shop">
+                Shop coffee
+              </Link>
+            </div>
           </div>
-        </div>
-        <Reveal className="perc-hero-visual" variant="fade" delaySteps={2} as="div">
+        </Reveal>
+        <Reveal className="perc-hero-visual" variant="right" delaySteps={1} as="div">
           <img
             className="hero-photo"
             src="/hero-field.png"
             alt="Terraced coffee hills with a winding mountain road"
           />
         </Reveal>
-        <Reveal className="editorial-visual" variant="scale" delaySteps={1} as="div">
+        <Reveal className="editorial-visual" variant="left" delaySteps={1} as="div">
           <img
             className="editorial-photo"
             src="/pour-over-bloom.png"
@@ -91,7 +96,7 @@ export default function Home() {
             decoding="async"
           />
         </Reveal>
-        <Reveal className="editorial-copy story-copy" variant="up" delaySteps={2} as="div">
+        <Reveal className="editorial-copy story-copy" variant="right" delaySteps={2} as="div">
           <div className="story-copy-body">
             <p className="eyebrow">Hey there!</p>
             <h2>
@@ -169,7 +174,7 @@ export default function Home() {
       </section>
 
       <section className="home-cta-mosaic" aria-label="Subscriptions, wholesale, and contact">
-        <Reveal className="dual-cta-panel subscribe-panel" variant="up" delaySteps={0} as="div">
+        <Reveal className="dual-cta-panel subscribe-panel" variant="left" delaySteps={0} as="div">
           <div
             className="dual-cta-bg"
             style={{
@@ -191,7 +196,7 @@ export default function Home() {
             Explore plans
           </Link>
         </Reveal>
-        <Reveal className="dual-cta-panel wholesale-panel" variant="up" delaySteps={1} as="div">
+        <Reveal className="dual-cta-panel wholesale-panel" variant="right" delaySteps={1} as="div">
           <div
             className="dual-cta-bg"
             style={{
@@ -213,7 +218,7 @@ export default function Home() {
             Get started
           </Link>
         </Reveal>
-        <Reveal className="home-cta-photo" variant="scale" delaySteps={1} as="div">
+        <Reveal className="home-cta-photo" variant="left" delaySteps={1} as="div">
           <img
             src="/plant-coffee.png"
             alt="Pour-over dripper blooming on a wooden tray with plants"
@@ -221,7 +226,12 @@ export default function Home() {
             decoding="async"
           />
         </Reveal>
-        <Reveal className="home-cta-contact editorial-copy" variant="up" delaySteps={2} as="div">
+        <Reveal
+          className="home-cta-contact editorial-copy"
+          variant={contactStacked ? 'up' : 'right'}
+          delaySteps={2}
+          as="div"
+        >
           <div className="home-cta-contact-copy">
             <p className="eyebrow">Say hello</p>
             <h2>
