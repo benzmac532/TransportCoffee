@@ -55,7 +55,7 @@ export default function Contact() {
             <aside className="contact-visual">
               <img
                 src="/contact-desk.jpg"
-                alt="Coffee, notebook, and phone on a wooden desk"
+                alt="Espresso portafilters, coffee beans, and a latte with heart art on wooden boards"
                 loading="lazy"
                 decoding="async"
               />
