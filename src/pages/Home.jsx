@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import ShopifyImage from '../components/ShopifyImage';
+import { getStaticPageMeta } from '../lib/seoPages';
 import { FEATURED_HANDLES, formatMoney, getProductsByHandles } from '../lib/shopify';
 
 const CONTACT_STACKED_QUERY = '(max-width: 680px)';
+const pageMeta = getStaticPageMeta('/');
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -45,6 +49,7 @@ export default function Home() {
 
   return (
     <main>
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <section className="home-quad">
         <Reveal className="perc-hero-copy" variant="left" delaySteps={0} as="div">
           <div className="perc-hero-media" aria-hidden="true">
@@ -64,7 +69,7 @@ export default function Home() {
             <p className="eyebrow">Est. 2026</p>
             <h1>
               <span>Coffee that</span>
-              <span>moves you.</span>
+              <span>moves you</span>
             </h1>
             <p className="lead">
               We source thoughtful coffees and roast them with every ounce of care.
@@ -135,11 +140,12 @@ export default function Home() {
                 <article className="product-card shop-preview-card">
                   <Link className="product-art" to={`/shop/${product.handle}`}>
                     {product.image?.url ? (
-                      <img
-                        src={product.image.url}
+                      <ShopifyImage
+                        url={product.image.url}
                         alt={product.image.altText || product.title}
-                        loading="lazy"
-                        decoding="async"
+                        widths={[240, 400, 640, 800]}
+                        sizes="(max-width: 700px) 45vw, (max-width: 1100px) 22vw, 260px"
+                        width={400}
                       />
                     ) : (
                       <div className="product-art-placeholder" aria-hidden="true" />

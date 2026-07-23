@@ -57,6 +57,41 @@ export function formatMoney(amount, currencyCode = 'USD') {
   }).format(value);
 }
 
+const SHOPIFY_IMAGE_HOST = /(^|\.)(?:shopify\.com|shopifycdn\.com)$/i;
+
+/** True when the URL can be resized via Shopify CDN width params. */
+export function isShopifyCdnUrl(url) {
+  if (!url) return false;
+  try {
+    return SHOPIFY_IMAGE_HOST.test(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Request a resized Shopify CDN image. Non-Shopify URLs are returned unchanged.
+ * @see https://shopify.dev/docs/api/liquid/filters/image_url
+ */
+export function shopifyImageUrl(url, width) {
+  if (!url) return '';
+  if (!width || !isShopifyCdnUrl(url)) return url;
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set('width', String(Math.round(width)));
+    parsed.searchParams.delete('height');
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+/** Build a srcset string for common display widths. */
+export function shopifyImageSrcSet(url, widths = [240, 400, 640, 800, 1200, 1600]) {
+  if (!url || !isShopifyCdnUrl(url)) return undefined;
+  return widths.map((width) => `${shopifyImageUrl(url, width)} ${width}w`).join(', ');
+}
+
 function sortProductsByTitle(products) {
   return [...products].sort((a, b) =>
     String(a?.title || '').localeCompare(String(b?.title || ''), undefined, { sensitivity: 'base' }),
@@ -73,6 +108,7 @@ function mapStorefrontProduct(node) {
     title: node.title,
     description: node.description || '',
     descriptionHtml: node.descriptionHtml || '',
+    productType: (node.productType || '').trim(),
     availableForSale: Boolean(node.availableForSale ?? variant?.availableForSale),
     image: image
       ? { url: image.url, altText: image.altText || node.title }
@@ -115,6 +151,7 @@ function mapAjaxProduct(product) {
     title: product.title,
     description: (product.body_html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
     descriptionHtml: product.body_html || '',
+    productType: String(product.product_type || '').trim(),
     availableForSale: variant ? variant.available !== false && variant.inventory_quantity !== 0 : true,
     image: image
       ? {
@@ -172,6 +209,7 @@ const PRODUCT_FIELDS = `
   title
   description
   descriptionHtml
+  productType
   availableForSale
   featuredImage { url altText }
   images(first: 6) { nodes { url altText } }

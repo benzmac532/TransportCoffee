@@ -1,11 +1,16 @@
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
+
+const pageMeta = getStaticPageMeta('/about');
 
 export default function About() {
   return (
     <main className="page about-page">
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <div className="about-mosaic">
-        <PageHero eyebrow="About Transport Coffee Roasters" title="Coffee that moves you." />
+        <PageHero eyebrow="About Transport Coffee Roasters" title="Coffee that moves you" />
 
         <section className="about-feature">
           <Reveal className="about-photo-col" variant="left" delaySteps={1}>

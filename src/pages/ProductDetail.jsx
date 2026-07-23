@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../components/CartContext';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import ShopifyImage from '../components/ShopifyImage';
+import { DEFAULT_DESCRIPTION } from '../lib/site';
 import { formatMoney, getProductByHandle, storefrontConfigHint } from '../lib/shopify';
+import NotFound from './NotFound';
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -117,6 +121,12 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <main className="page shop-page product-detail-page">
+        <Seo
+          title="Loading product"
+          description={DEFAULT_DESCRIPTION}
+          path={`/shop/${handle}`}
+          noindex
+        />
         <section className="section">
           <p className="shop-status">Loading product…</p>
         </section>
@@ -126,14 +136,19 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <main className="page shop-page product-detail-page">
-        <section className="section">
-          <p className="shop-status shop-status-error">{error || 'Product not found.'}</p>
-          <Link className="button" to="/shop">
-            Back to shop
-          </Link>
-        </section>
-      </main>
+      <NotFound
+        title="Product not found"
+        message={
+          error && error !== 'Product not found.'
+            ? error
+            : "We couldn't find that product (or it may have left the catalog). Browse the shop for what's available now."
+        }
+        primaryTo="/shop"
+        primaryLabel="Back to shop"
+        secondaryTo="/"
+        secondaryLabel="Back home"
+        path={`/shop/${handle}`}
+      />
     );
   }
 
@@ -147,6 +162,14 @@ export default function ProductDetail() {
 
   return (
     <main className="page shop-page product-detail-page">
+      <Seo
+        title={product.title}
+        description={product.description || DEFAULT_DESCRIPTION}
+        path={`/shop/${product.handle || handle}`}
+        image={product.image?.url}
+        imageAlt={product.image?.altText || product.title}
+        type="product"
+      />
       <section className="section product-detail">
         <Reveal className="product-detail-shell" variant="up">
           <Link className="text-link product-back" to="/shop">
@@ -162,9 +185,14 @@ export default function ProductDetail() {
               onMouseLeave={handleMediaLeave}
             >
               {product.image?.url ? (
-                <img
-                  src={product.image.url}
+                <ShopifyImage
+                  url={product.image.url}
                   alt={product.image.altText || product.title}
+                  widths={[400, 640, 800, 1200, 1600]}
+                  sizes="(max-width: 1040px) 100vw, 50vw"
+                  width={1200}
+                  loading="eager"
+                  fetchPriority="high"
                   style={{
                     transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
                   }}
@@ -176,7 +204,7 @@ export default function ProductDetail() {
 
             <div className="product-detail-copy">
               <div className="product-detail-intro">
-                <p className="eyebrow">Coffee</p>
+                <p className="eyebrow">{product.productType || 'Product'}</p>
                 <h1>{product.title}</h1>
                 {price && <p className="product-detail-price">{price}</p>}
                 {product.description && (
@@ -246,7 +274,14 @@ export default function ProductDetail() {
                 {!configured && (
                   <p className="shop-status">{storefrontConfigHint()}</p>
                 )}
-                {notice && <p className="shop-status">{notice}</p>}
+                {notice && (
+                  <p
+                    className={`shop-status${notice === 'Added to cart.' ? '' : ' shop-status-error'}`}
+                    role={notice === 'Added to cart.' ? 'status' : 'alert'}
+                  >
+                    {notice}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -1,7 +1,25 @@
+import { useEffect, useId, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, ShoppingBag, X } from 'lucide-react';
 import { formatMoney, storefrontConfigHint } from '../lib/shopify';
 import { useCart } from './CartContext';
+import ShopifyImage from './ShopifyImage';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
+function getFocusable(container) {
+  if (!container) return [];
+  return [...container.querySelectorAll(FOCUSABLE_SELECTOR)].filter(
+    (node) => !node.hasAttribute('disabled') && node.getAttribute('aria-hidden') !== 'true',
+  );
+}
 
 export default function CartDrawer() {
   const {
@@ -16,20 +34,103 @@ export default function CartDrawer() {
     checkout,
   } = useCart();
 
+  const titleId = useId();
+  const rootRef = useRef(null);
+  const panelRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    previouslyFocusedRef.current = document.activeElement;
+    const panel = panelRef.current;
+    const closeButton = closeButtonRef.current;
+    const focusables = getFocusable(panel);
+    (closeButton || focusables[0] || panel)?.focus();
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function onKeyDown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeCart();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !panel) return;
+
+      const items = getFocusable(panel);
+      if (items.length === 0) {
+        event.preventDefault();
+        panel.focus();
+        return;
+      }
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+        return;
+      }
+
+      if (!event.shiftKey && (active === last || !panel.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      const previous = previouslyFocusedRef.current;
+      if (previous && typeof previous.focus === 'function') {
+        previous.focus();
+      }
+    };
+  }, [open, closeCart]);
+
   if (!open) return null;
 
   const lines = cart?.lines || [];
   const subtotal = cart?.cost?.subtotalAmount;
 
   return (
-    <div className="cart-drawer-root" role="dialog" aria-modal="true" aria-label="Shopping cart">
-      <button type="button" className="cart-drawer-backdrop" aria-label="Close cart" onClick={closeCart} />
-      <aside className="cart-drawer">
+    <div
+      ref={rootRef}
+      className="cart-drawer-root"
+      role="presentation"
+    >
+      <button
+        type="button"
+        className="cart-drawer-backdrop"
+        aria-label="Close cart"
+        onClick={closeCart}
+      />
+      <aside
+        ref={panelRef}
+        className="cart-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+      >
         <header className="cart-drawer-header">
-          <h2>
+          <h2 id={titleId}>
             <ShoppingBag size={18} aria-hidden="true" /> Your cart
           </h2>
-          <button type="button" className="cart-icon-button" aria-label="Close cart" onClick={closeCart}>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            className="cart-icon-button"
+            aria-label="Close cart"
+            onClick={closeCart}
+          >
             <X size={20} />
           </button>
         </header>
@@ -40,7 +141,11 @@ export default function CartDrawer() {
           </p>
         )}
 
-        {error && <p className="cart-drawer-error">{error}</p>}
+        {error && (
+          <p className="cart-drawer-error" role="alert">
+            {error}
+          </p>
+        )}
 
         {lines.length === 0 ? (
           <div className="cart-drawer-empty">
@@ -55,9 +160,12 @@ export default function CartDrawer() {
               {lines.map((line) => (
                 <li key={line.id} className="cart-line">
                   {line.merchandise.image?.url ? (
-                    <img
-                      src={line.merchandise.image.url}
+                    <ShopifyImage
+                      url={line.merchandise.image.url}
                       alt={line.merchandise.image.altText || line.merchandise.productTitle}
+                      widths={[120, 200, 320]}
+                      sizes="72px"
+                      width={200}
                     />
                   ) : (
                     <div className="cart-line-placeholder" />
@@ -66,7 +174,10 @@ export default function CartDrawer() {
                     <strong>{line.merchandise.productTitle}</strong>
                     {line.merchandise.title !== 'Default Title' && <span>{line.merchandise.title}</span>}
                     <span>
-                      {formatMoney(line.cost?.amount || line.merchandise.price?.amount, line.cost?.currencyCode || line.merchandise.price?.currencyCode)}
+                      {formatMoney(
+                        line.cost?.amount || line.merchandise.price?.amount,
+                        line.cost?.currencyCode || line.merchandise.price?.currencyCode,
+                      )}
                     </span>
                     <div className="cart-qty">
                       <button
@@ -108,7 +219,12 @@ export default function CartDrawer() {
                 </strong>
               </div>
               <p className="cart-drawer-note">Taxes and shipping calculated at Shopify checkout.</p>
-              <button type="button" className="button" disabled={loading || !cart?.checkoutUrl} onClick={checkout}>
+              <button
+                type="button"
+                className="button"
+                disabled={loading || !cart?.checkoutUrl}
+                onClick={checkout}
+              >
                 Checkout
               </button>
             </footer>

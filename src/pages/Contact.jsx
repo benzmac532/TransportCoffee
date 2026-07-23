@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { Mail, MapPin } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
 import {
   CONTACT_EMAIL,
   buildContactEmail,
   sendFormEmail,
 } from '../lib/emailDrafts';
+
+const pageMeta = getStaticPageMeta('/contact');
 
 const subjects = [
   'General inquiry',
@@ -42,27 +46,42 @@ export default function Contact() {
 
   return (
     <main className="page contact-page">
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <div className="contact-mosaic">
-        <PageHero eyebrow="Contact Us" title="Let's connect." />
+        <PageHero eyebrow="Contact Us" title="Let's connect" />
 
-        <section className="contact-layout">
-          <Reveal className="contact-info" variant="up" delaySteps={1}>
-            <h2>Get in touch</h2>
-            <p>
-              Drop us a line anytime with questions, feedback, or just coffee talk.
-              We love hearing from you and we&apos;ll reply soon.
-            </p>
+        <section className="contact-feature">
+          <Reveal className="contact-photo-col" variant="left" delaySteps={1}>
+            <aside className="contact-visual">
+              <img
+                src="/contact-desk.jpg"
+                alt="Coffee, notebook, and phone on a wooden desk"
+                loading="lazy"
+                decoding="async"
+              />
+            </aside>
+          </Reveal>
+
+          <Reveal className="contact-intro" variant="up" delaySteps={2}>
+            <div className="contact-intro-copy">
+              <p className="eyebrow">Reach out</p>
+              <h2>Get in touch</h2>
+              <p>
+                Drop us a line anytime with questions, feedback, or just coffee talk.
+                We love hearing from you and we&apos;ll reply soon.
+              </p>
+            </div>
 
             <ul className="contact-details">
               <li>
-                <Mail size={20} />
+                <Mail size={18} strokeWidth={1.75} aria-hidden="true" />
                 <div>
                   <strong>Email</strong>
                   <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
                 </div>
               </li>
               <li>
-                <MapPin size={20} />
+                <MapPin size={18} strokeWidth={1.75} aria-hidden="true" />
                 <div>
                   <strong>Location</strong>
                   <span>The Shoals, AL</span>
@@ -70,8 +89,10 @@ export default function Contact() {
               </li>
             </ul>
           </Reveal>
+        </section>
 
-          <Reveal className="form-card" variant="up" delaySteps={2}>
+        <section className="contact-form-band" aria-label="Contact form">
+          <Reveal className="form-card contact-form-card" variant="up">
             {submitted ? (
               <div className="form-success">
                 <h2>Thanks!</h2>
@@ -93,22 +114,22 @@ export default function Contact() {
                 <div className="form-row">
                   <label>
                     <span>First name *</span>
-                    <input type="text" name="firstName" required />
+                    <input type="text" name="firstName" autoComplete="given-name" required />
                   </label>
                   <label>
                     <span>Last name *</span>
-                    <input type="text" name="lastName" required />
+                    <input type="text" name="lastName" autoComplete="family-name" required />
                   </label>
                 </div>
 
                 <label>
                   <span>Email *</span>
-                  <input type="email" name="email" required />
+                  <input type="email" name="email" autoComplete="email" required />
                 </label>
 
                 <label>
                   <span>Subject *</span>
-                  <select name="subject" required defaultValue="">
+                  <select name="subject" autoComplete="off" required defaultValue="">
                     <option value="" disabled>
                       Select a subject
                     </option>
@@ -122,7 +143,13 @@ export default function Contact() {
 
                 <label>
                   <span>Message *</span>
-                  <textarea name="message" rows={6} required placeholder="How can we help?" />
+                  <textarea
+                    name="message"
+                    rows={6}
+                    required
+                    placeholder="How can we help?"
+                    autoComplete="off"
+                  />
                 </label>
 
                 {error && <p className="form-error" role="alert">{error}</p>}

@@ -42,7 +42,9 @@ export function CartProvider({ children }) {
         setOpen(true);
         return next;
       } catch (err) {
-        setError(err.message || 'Could not add to cart.');
+        const message = err.message || 'Could not add to cart.';
+        setError(message);
+        setOpen(true);
         throw err;
       } finally {
         setLoading(false);

@@ -17,6 +17,22 @@ const moreLinks = [
   { label: 'Where to find us', to: '/locations' },
 ];
 
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
+function getFocusable(container) {
+  if (!container) return [];
+  return [...container.querySelectorAll(FOCUSABLE_SELECTOR)].filter(
+    (node) => !node.hasAttribute('disabled') && node.getAttribute('aria-hidden') !== 'true',
+  );
+}
+
 function Dropdown({ label, items, open, onToggle, onClose }) {
   return (
     <div className={`nav-dropdown ${open ? 'open' : ''}`}>
@@ -61,6 +77,9 @@ export default function Layout() {
   const [shopOpen, setShopOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const navRef = useRef(null);
+  const mobileNavRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
   const { totalQuantity, openCart } = useCart();
 
   useEffect(() => {
@@ -74,6 +93,68 @@ export default function Layout() {
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    previouslyFocusedRef.current = document.activeElement;
+    const panel = mobileNavRef.current;
+    const menuButton = menuButtonRef.current;
+    const firstNavItem = getFocusable(panel)[0];
+    (firstNavItem || menuButton || panel)?.focus();
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function getMenuFocusables() {
+      const navItems = getFocusable(panel);
+      return menuButton ? [menuButton, ...navItems] : navItems;
+    }
+
+    function onKeyDown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMenuOpen(false);
+        setShopOpen(false);
+        setMoreOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const items = getMenuFocusables();
+      if (items.length === 0) {
+        event.preventDefault();
+        panel?.focus();
+        return;
+      }
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !items.includes(active))) {
+        event.preventDefault();
+        last.focus();
+        return;
+      }
+
+      if (!event.shiftKey && (active === last || !items.includes(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      const previous = previouslyFocusedRef.current;
+      if (previous && typeof previous.focus === 'function') {
+        previous.focus();
+      }
+    };
+  }, [menuOpen]);
 
   function closeAll() {
     setMenuOpen(false);
@@ -130,9 +211,12 @@ export default function Layout() {
             {totalQuantity > 0 && <span className="cart-count">{totalQuantity}</span>}
           </button>
           <button
+            ref={menuButtonRef}
             type="button"
             className="menu-button"
             aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
             onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -141,7 +225,13 @@ export default function Layout() {
       </header>
 
       {menuOpen && (
-        <nav className="mobile-nav" aria-label="Mobile navigation">
+        <nav
+          id="mobile-navigation"
+          ref={mobileNavRef}
+          className="mobile-nav"
+          aria-label="Mobile navigation"
+          tabIndex={-1}
+        >
           <NavLink to="/" end onClick={closeAll}>
             Home
           </NavLink>
@@ -206,6 +296,16 @@ export default function Layout() {
               <Link to="/shipping-policy">Shipping Policy</Link>
             </div>
           </div>
+          <p className="footer-credit">
+            Built by{' '}
+            <a
+              href="https://www.avalonbuilt.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Avalon Built
+            </a>
+          </p>
         </div>
       </footer>
     </div>

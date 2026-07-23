@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
+
+const pageMeta = getStaticPageMeta('/subscriptions');
 
 const plans = [
   {
@@ -47,10 +51,11 @@ export default function Subscriptions() {
 
   return (
     <main className="page subscriptions-page">
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <div className="subscriptions-mosaic">
         <PageHero
           eyebrow="Subscriptions"
-          titleLines={['Fresh Coffee', 'on your', 'Schedule.']}
+          titleLines={['Fresh Coffee', 'on your', 'Schedule']}
         />
 
         <section className="subs-feature">

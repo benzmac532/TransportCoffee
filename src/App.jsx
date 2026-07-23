@@ -13,6 +13,7 @@ import RefundPolicy from './pages/RefundPolicy';
 import ShippingPolicy from './pages/ShippingPolicy';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="locations" element={<Locations />} />
             <Route path="refund-policy" element={<RefundPolicy />} />
             <Route path="shipping-policy" element={<ShippingPolicy />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </CartProvider>

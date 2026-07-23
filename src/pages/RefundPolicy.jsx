@@ -1,9 +1,14 @@
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
+
+const pageMeta = getStaticPageMeta('/refund-policy');
 
 export default function RefundPolicy() {
   return (
     <main className="page policy-page">
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <PageHero eyebrow="Policies" title="Refund Policy" />
       <Reveal as="section" className="page-content prose" variant="up" delaySteps={1}>
         <p>

@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
 import {
   CONTACT_EMAIL,
   buildWholesaleEmail,
   sendFormEmail,
 } from '../lib/emailDrafts';
+
+const pageMeta = getStaticPageMeta('/wholesale');
 
 const businessTypes = [
   'Café / Coffee Shop',
@@ -49,10 +53,11 @@ export default function Wholesale() {
 
   return (
     <main className="page wholesale-page">
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <div className="wholesale-mosaic">
         <PageHero
           eyebrow="Wholesale"
-          titleLines={['Partnerships that move', 'coffee forward.']}
+          titleLines={['Partnerships that move', 'coffee forward']}
         />
 
         <section className="wholesale-feature">
@@ -109,40 +114,45 @@ export default function Wholesale() {
                 <div className="form-row">
                   <label>
                     <span>First name *</span>
-                    <input type="text" name="firstName" required />
+                    <input type="text" name="firstName" autoComplete="given-name" required />
                   </label>
                   <label>
                     <span>Last name *</span>
-                    <input type="text" name="lastName" required />
+                    <input type="text" name="lastName" autoComplete="family-name" required />
                   </label>
                 </div>
 
                 <div className="form-row">
                   <label>
                     <span>Business name *</span>
-                    <input type="text" name="businessName" required />
+                    <input type="text" name="businessName" autoComplete="organization" required />
                   </label>
                   <label>
                     <span>City / State *</span>
-                    <input type="text" name="location" required />
+                    <input
+                      type="text"
+                      name="location"
+                      autoComplete="address-level2"
+                      required
+                    />
                   </label>
                 </div>
 
                 <div className="form-row">
                   <label>
                     <span>Email *</span>
-                    <input type="email" name="email" required />
+                    <input type="email" name="email" autoComplete="email" required />
                   </label>
                   <label>
                     <span>Phone</span>
-                    <input type="tel" name="phone" />
+                    <input type="tel" name="phone" autoComplete="tel" />
                   </label>
                 </div>
 
                 <div className="form-row">
                   <label>
                     <span>Business type *</span>
-                    <select name="businessType" required defaultValue="">
+                    <select name="businessType" autoComplete="off" required defaultValue="">
                       <option value="" disabled>
                         Select a type
                       </option>
@@ -155,7 +165,7 @@ export default function Wholesale() {
                   </label>
                   <label>
                     <span>Estimated monthly volume *</span>
-                    <select name="volume" required defaultValue="">
+                    <select name="volume" autoComplete="off" required defaultValue="">
                       <option value="" disabled>
                         Select volume
                       </option>
@@ -174,6 +184,7 @@ export default function Wholesale() {
                     name="message"
                     rows={4}
                     placeholder="Equipment, menu goals, delivery preferences, etc."
+                    autoComplete="off"
                   />
                 </label>
 

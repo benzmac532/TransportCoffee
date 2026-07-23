@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import PageHero from '../components/PageHero';
 import ProductCard from '../components/ProductCard';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
 import { getCollectionProducts, getProducts, SHOP_COLLECTIONS } from '../lib/shopify';
 
 const PRODUCT_KEY = (product) => product.id || product.handle;
@@ -17,6 +19,13 @@ export default function Shop() {
   const collectionMeta = SHOP_COLLECTIONS.find((item) => item.handle === handle);
   const title = collectionMeta?.label || (handle ? handle.replace(/-/g, ' ') : 'All products');
   const isEmpty = hasLoaded && !error && products.length === 0;
+  const seoPath = handle ? `/shop/collections/${handle}` : '/shop';
+  const seoMeta = getStaticPageMeta(seoPath);
+  const seoTitle = seoMeta?.title || title;
+  const seoDescription =
+    seoMeta?.description ||
+    `Shop ${title} from Transport Coffee Roasters — specialty coffee roasted with care.`;
+
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +80,7 @@ export default function Shop() {
 
   return (
     <main className={`page shop-page${isEmpty ? ' shop-page-empty' : ''}`}>
+      <Seo title={seoTitle} description={seoDescription} path={seoPath} />
       <div className="shop-mosaic">
         <PageHero eyebrow="Shop" title={title} />
 

@@ -1,9 +1,14 @@
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
+import Seo from '../components/Seo';
+import { getStaticPageMeta } from '../lib/seoPages';
+
+const pageMeta = getStaticPageMeta('/shipping-policy');
 
 export default function ShippingPolicy() {
   return (
     <main className="page policy-page">
+      <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <PageHero eyebrow="Policies" title="Shipping Policy" />
       <Reveal as="section" className="page-content prose" variant="up" delaySteps={1}>
         <p>
@@ -32,12 +37,6 @@ export default function ShippingPolicy() {
             transportcoffeeroasters@gmail.com
           </a>{' '}
           and we&apos;ll take care of you.
-        </p>
-        <p>
-          <em>
-            Note: If you have a more detailed Shopify shipping document, we can
-            swap this copy for that version anytime.
-          </em>
         </p>
       </Reveal>
     </main>

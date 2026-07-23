@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatMoney } from '../lib/shopify';
 import { useCart } from './CartContext';
+import ShopifyImage from './ShopifyImage';
 
 export default function ProductCard({ product }) {
   const { addItem, loading: cartLoading, configured } = useCart();
   const [adding, setAdding] = useState(false);
+  const [error, setError] = useState('');
 
   if (!product) return null;
 
@@ -20,10 +22,11 @@ export default function ProductCard({ product }) {
   async function handleAddToCart() {
     if (!variant?.id) return;
     setAdding(true);
+    setError('');
     try {
       await addItem(variant.id, 1);
     } catch (err) {
-      console.error(err);
+      setError(err.message || 'Could not add to cart.');
     } finally {
       setAdding(false);
     }
@@ -33,7 +36,13 @@ export default function ProductCard({ product }) {
     <article className="product-card">
       <Link className="product-art" to={`/shop/${product.handle}`}>
         {product.image?.url ? (
-          <img src={product.image.url} alt={product.image.altText || product.title} />
+          <ShopifyImage
+            url={product.image.url}
+            alt={product.image.altText || product.title}
+            widths={[240, 400, 640, 800]}
+            sizes="(max-width: 700px) 45vw, (max-width: 1100px) 30vw, 280px"
+            width={400}
+          />
         ) : (
           <div className="product-art-placeholder" aria-hidden="true" />
         )}
@@ -63,6 +72,11 @@ export default function ProductCard({ product }) {
               {!canAdd ? 'Sold out' : adding ? 'Adding…' : 'Add to cart'}
             </button>
           </div>
+          {error ? (
+            <p className="product-card-error" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
       </div>
     </article>
