@@ -274,12 +274,14 @@ export default function Layout() {
             </div>
             <nav className="footer-explore" aria-label="Footer navigation">
               <h3>Explore</h3>
-              <Link to="/about">About Us</Link>
-              <Link to="/contact">Contact Us</Link>
-              <Link to="/subscriptions">Subscriptions</Link>
-              <Link to="/wholesale">Wholesale</Link>
-              <Link to="/locations">Where to find us</Link>
-              <Link to="/shop">Shop coffee</Link>
+              <div className="footer-explore-links">
+                <Link to="/about">About Us</Link>
+                <Link to="/contact">Contact Us</Link>
+                <Link to="/subscriptions">Subscriptions</Link>
+                <Link to="/wholesale">Wholesale</Link>
+                <Link to="/locations">Where to find us</Link>
+                <Link to="/shop">Shop coffee</Link>
+              </div>
             </nav>
             <div className="footer-connect">
               <h3>Connect</h3>
@@ -290,22 +292,24 @@ export default function Layout() {
             </div>
           </div>
           <div className="footer-legal">
-            <p>&copy; {new Date().getFullYear()} Transport Coffee Roasters</p>
-            <div className="footer-links">
-              <Link to="/refund-policy">Refund Policy</Link>
-              <Link to="/shipping-policy">Shipping Policy</Link>
+            <div className="footer-legal-primary">
+              <p>&copy; {new Date().getFullYear()} Transport Coffee Roasters</p>
+              <div className="footer-links">
+                <Link to="/refund-policy">Refund Policy</Link>
+                <Link to="/shipping-policy">Shipping Policy</Link>
+              </div>
             </div>
+            <p className="footer-credit">
+              Designed by{' '}
+              <a
+                href="https://www.avalonbuilt.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Avalon Built
+              </a>
+            </p>
           </div>
-          <p className="footer-credit">
-            Built by{' '}
-            <a
-              href="https://www.avalonbuilt.com"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Avalon Built
-            </a>
-          </p>
         </div>
       </footer>
     </div>
