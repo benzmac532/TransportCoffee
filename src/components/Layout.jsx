@@ -76,7 +76,9 @@ export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [announcementPinned, setAnnouncementPinned] = useState(false);
   const navRef = useRef(null);
+  const headerRef = useRef(null);
   const mobileNavRef = useRef(null);
   const menuButtonRef = useRef(null);
   const previouslyFocusedRef = useRef(null);
@@ -92,6 +94,21 @@ export default function Layout() {
 
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
+  }, []);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header || typeof IntersectionObserver === 'undefined') return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setAnnouncementPinned(!entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(header);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -164,7 +181,7 @@ export default function Layout() {
 
   return (
     <div className="site-shell">
-      <header className="site-header">
+      <header className="site-header" ref={headerRef}>
         <LogoStack />
         <nav className="desktop-nav" aria-label="Main navigation" ref={navRef}>
           <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : undefined)}>
@@ -223,10 +240,14 @@ export default function Layout() {
           </button>
         </div>
       </header>
-      <div className="announcement" role="status">
+      <div
+        className={`announcement${announcementPinned ? ' is-pinned' : ''}`}
+        role="status"
+      >
         Free shipping for purchases over
         <span className="announcement-price">$35</span>
       </div>
+      {announcementPinned && <div className="announcement-spacer" aria-hidden="true" />}
 
       {menuOpen && (
         <nav
