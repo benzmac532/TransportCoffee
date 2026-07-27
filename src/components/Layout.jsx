@@ -223,6 +223,10 @@ export default function Layout() {
           </button>
         </div>
       </header>
+      <div className="announcement" role="status">
+        Free shipping for purchases over
+        <span className="announcement-price">$35</span>
+      </div>
 
       {menuOpen && (
         <nav
