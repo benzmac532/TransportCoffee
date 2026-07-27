@@ -3398,24 +3398,44 @@ h3,
   background: rgba(255, 255, 255, 0.42);
   border: 1px solid rgba(16, 32, 51, 0.08);
   border-top: 1px solid rgba(194, 92, 46, 0.28);
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: auto 1fr;
   padding: 1.35rem 1.35rem 1.45rem;
-}
-
-.location-card-icon {
-  align-items: center;
-  color: var(--copper);
-  display: flex;
-  height: 2.35rem;
-  justify-content: center;
-  margin-top: 0.1rem;
-  width: 2.35rem;
 }
 
 .location-card-body {
   min-width: 0;
+}
+
+.location-card-heading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.85rem;
+  margin-bottom: 0.55rem;
+}
+
+.location-card-actions {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.55rem;
+}
+
+.location-directions-link,
+.location-social-link {
+  align-items: center;
+  color: var(--copper);
+  display: inline-flex;
+  justify-content: center;
+  opacity: 0.85;
+  transition: color 160ms ease, opacity 160ms ease, transform 160ms ease;
+}
+
+.location-directions-link:hover,
+.location-directions-link:focus-visible,
+.location-social-link:hover,
+.location-social-link:focus-visible {
+  color: var(--navy);
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 .location-card h3 {
@@ -3424,7 +3444,7 @@ h3,
   font-weight: 800;
   letter-spacing: 0.04em;
   line-height: 1.35;
-  margin: 0 0 0.55rem;
+  margin: 0;
   text-transform: uppercase;
 }
 

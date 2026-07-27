@@ -7,17 +7,71 @@ import { getStaticPageMeta } from '../lib/seoPages';
 
 const pageMeta = getStaticPageMeta('/locations');
 
+function InstagramIcon({ size = 16, strokeWidth = 1.75 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ size = 16, strokeWidth = 1.75 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14 8h2V5h-2c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h2.2l.8-3H13V9c0-.6.4-1 1-1Z" />
+    </svg>
+  );
+}
+
 const locations = [
   {
     name: 'The Forge Coffeehouse',
     address: '2108 S Wilson Dam Rd',
     city: 'Muscle Shoals, AL 35661',
-    href: 'https://cash.app/$theforgecoffeehouse/pickup',
+    href: 'https://www.theforgecoffeehouse.com/',
+    socials: [
+      {
+        label: 'Instagram',
+        href: 'https://www.instagram.com/forgecoffeehouse/?hl=en',
+        icon: InstagramIcon,
+      },
+      {
+        label: 'Facebook',
+        href: 'https://www.facebook.com/p/The-Forge-Coffeehouse-61558781245806/',
+        icon: FacebookIcon,
+      },
+    ],
   },
 ];
 
 function fullAddress(place) {
   return `${place.address}, ${place.city}`;
+}
+
+function directionsUrl(address) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 }
 
 export default function Locations() {
@@ -40,6 +94,7 @@ export default function Locations() {
 
             <div className="locations-grid">
               {locations.map((place, index) => {
+                const address = fullAddress(place);
                 const name = place.href ? (
                   <a
                     className="location-name-link"
@@ -62,11 +117,37 @@ export default function Locations() {
                     delaySteps={index}
                     variant="up"
                   >
-                    <div className="location-card-icon" aria-hidden="true">
-                      <MapPin size={18} strokeWidth={1.75} />
-                    </div>
                     <div className="location-card-body">
-                      <h3>{name}</h3>
+                      <div className="location-card-heading">
+                        <h3>{name}</h3>
+                        <div className="location-card-actions">
+                          <a
+                            className="location-directions-link"
+                            href={directionsUrl(address)}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`Get directions to ${place.name}`}
+                            title="Get directions"
+                          >
+                            <MapPin size={16} strokeWidth={1.75} aria-hidden="true" />
+                          </a>
+                          {place.socials?.map((social) => {
+                            const Icon = social.icon;
+                            return (
+                              <a
+                                key={social.label}
+                                className="location-social-link"
+                                href={social.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={`${place.name} on ${social.label}`}
+                              >
+                                <Icon size={16} strokeWidth={1.75} />
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </div>
                       <p>{place.address}</p>
                       <p>{place.city}</p>
                     </div>
