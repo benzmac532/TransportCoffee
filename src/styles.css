@@ -203,8 +203,7 @@ h3,
   left: 0;
   position: fixed;
   right: 0;
-  top: 0;
-  transform: translateZ(0);
+  top: var(--vv-top, 0px);
   z-index: 200;
 }
 

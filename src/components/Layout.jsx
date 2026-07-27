@@ -131,6 +131,34 @@ export default function Layout() {
     };
   }, []);
 
+  // iOS Safari: fixed elements use the layout viewport, while scrolling
+  // shifts the visual viewport — offset the pinned banner to match.
+  useEffect(() => {
+    if (!announcementPinned) {
+      document.documentElement.style.removeProperty('--vv-top');
+      return undefined;
+    }
+
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+
+    function syncVisualViewport() {
+      document.documentElement.style.setProperty(
+        '--vv-top',
+        `${Math.max(0, vv.offsetTop)}px`,
+      );
+    }
+
+    syncVisualViewport();
+    vv.addEventListener('resize', syncVisualViewport);
+    vv.addEventListener('scroll', syncVisualViewport);
+    return () => {
+      vv.removeEventListener('resize', syncVisualViewport);
+      vv.removeEventListener('scroll', syncVisualViewport);
+      document.documentElement.style.removeProperty('--vv-top');
+    };
+  }, [announcementPinned]);
+
   useEffect(() => {
     if (!menuOpen) return undefined;
 
