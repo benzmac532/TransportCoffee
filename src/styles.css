@@ -196,7 +196,7 @@ h3,
   position: relative;
   text-align: center;
   text-transform: uppercase;
-  z-index: 40;
+  z-index: 55;
 }
 
 .announcement.is-pinned {
@@ -204,7 +204,8 @@ h3,
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 60;
+  transform: translateZ(0);
+  z-index: 200;
 }
 
 .announcement-spacer {
@@ -229,7 +230,7 @@ h3,
   padding: 0.85rem clamp(1rem, 4vw, 3rem);
   position: relative;
   width: 100%;
-  z-index: 50;
+  z-index: 70;
 }
 
 .logo {
@@ -2136,21 +2137,39 @@ h3,
 }
 
 .mobile-cart-link {
+  align-items: center;
   background: transparent;
   border: 0;
-  color: inherit;
+  border-top: 1px solid var(--border);
+  color: var(--navy);
   cursor: pointer;
-  font: inherit;
-  letter-spacing: inherit;
-  padding: 0;
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 800;
+  gap: 0.65rem;
+  letter-spacing: 0.1em;
+  margin-top: 0.65rem;
+  padding: 1rem 0 0.35rem;
   text-align: left;
   text-transform: uppercase;
+  transition: color 160ms ease;
+  width: 100%;
+}
+
+.mobile-cart-link svg {
+  color: var(--copper);
+  flex-shrink: 0;
+}
+
+.mobile-cart-link:hover,
+.mobile-cart-link:focus-visible {
+  color: var(--copper);
 }
 
 .cart-drawer-root {
   inset: 0;
   position: fixed;
-  z-index: 80;
+  z-index: 250;
 }
 
 .cart-drawer-backdrop {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react';
 import LogoStack from './LogoStack';
@@ -98,17 +99,36 @@ export default function Layout() {
 
   useEffect(() => {
     const header = headerRef.current;
-    if (!header || typeof IntersectionObserver === 'undefined') return undefined;
+    if (!header) return undefined;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setAnnouncementPinned(!entry.isIntersecting);
-      },
-      { threshold: 0 },
-    );
+    let frame = 0;
 
-    observer.observe(header);
-    return () => observer.disconnect();
+    function updatePinned() {
+      const topLeft = header.getBoundingClientRect().bottom <= 0.5;
+      setAnnouncementPinned(topLeft);
+    }
+
+    function onScrollOrResize() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(updatePinned);
+    }
+
+    updatePinned();
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    let observer;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(onScrollOrResize, { threshold: [0, 1] });
+      observer.observe(header);
+    }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+      observer?.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -179,6 +199,16 @@ export default function Layout() {
     setMoreOpen(false);
   }
 
+  const announcement = (
+    <div
+      className={`announcement${announcementPinned ? ' is-pinned' : ''}`}
+      role="status"
+    >
+      Free shipping for purchases over
+      <span className="announcement-price">$35</span>
+    </div>
+  );
+
   return (
     <div className="site-shell">
       <header className="site-header" ref={headerRef}>
@@ -240,13 +270,9 @@ export default function Layout() {
           </button>
         </div>
       </header>
-      <div
-        className={`announcement${announcementPinned ? ' is-pinned' : ''}`}
-        role="status"
-      >
-        Free shipping for purchases over
-        <span className="announcement-price">$35</span>
-      </div>
+      {announcementPinned
+        ? createPortal(announcement, document.body)
+        : announcement}
       {announcementPinned && <div className="announcement-spacer" aria-hidden="true" />}
 
       {menuOpen && (
@@ -283,7 +309,8 @@ export default function Layout() {
               openCart();
             }}
           >
-            Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+            <ShoppingBag size={18} strokeWidth={1.75} aria-hidden="true" />
+            <span>View cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}</span>
           </button>
         </nav>
       )}
