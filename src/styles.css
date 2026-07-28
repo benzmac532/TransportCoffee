@@ -85,6 +85,13 @@
 .values-strip > .reveal {
   height: 100%;
   min-width: 0;
+  width: 100%;
+}
+
+.product-grid > .reveal {
+  display: flex;
+  justify-content: center;
+  max-width: 21rem;
 }
 
 .product-grid > .reveal > .product-card,
@@ -724,24 +731,30 @@ h3,
 
 .shop-preview-card {
   background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(16, 32, 51, 0.08);
-  box-shadow: 0 1rem 2.25rem rgba(16, 32, 51, 0.06);
+  border: 1px solid rgba(194, 92, 46, 0.42);
+  box-shadow:
+    0 0.85rem 1.85rem rgba(16, 32, 51, 0.05),
+    inset 0 0 0 1px rgba(194, 92, 46, 0.08);
   overflow: hidden;
   padding: 0;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.28s ease,
+    box-shadow 0.28s ease,
+    transform 0.28s ease;
 }
 
 .shop-preview-card:hover {
-  border-color: rgba(194, 92, 46, 0.28);
-  box-shadow: 0 1.25rem 2.75rem rgba(16, 32, 51, 0.1);
+  border-color: var(--copper);
+  box-shadow:
+    0 1.35rem 2.75rem rgba(16, 32, 51, 0.16),
+    0 0.35rem 0.85rem rgba(194, 92, 46, 0.12),
+    inset 0 0 0 1px rgba(194, 92, 46, 0.18);
+  transform: translateY(-0.4rem);
 }
 
 .shop-preview-card .product-art {
   border-bottom: 1px solid rgba(16, 32, 51, 0.08);
-  height: 17rem;
+  height: 14.5rem;
   margin-bottom: 0;
 }
 
@@ -755,14 +768,15 @@ h3,
 
 .shop-preview-card .product-card-footer {
   align-items: center;
-  border-top: 1px solid rgba(16, 32, 51, 0.08);
+  border-top: none;
   display: flex;
   flex-wrap: wrap;
   gap: 0.85rem;
   justify-content: space-between;
   margin-top: auto;
   min-width: 0;
-  padding-top: 1rem;
+  padding-top: 1.15rem;
+  position: relative;
 }
 
 .shop-preview-card .product-card-footer strong {
@@ -1619,8 +1633,9 @@ h3,
 
 .product-grid {
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: clamp(1.15rem, 2vw, 1.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  justify-items: center;
 }
 
 .product-grid.shop-preview-grid {
@@ -1629,14 +1644,31 @@ h3,
 
 .product-card {
   background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(16, 32, 51, 0.08);
-  box-shadow: 0 1rem 2.25rem rgba(16, 32, 51, 0.06);
+  border: 1px solid rgba(194, 92, 46, 0.42);
+  box-shadow:
+    0 0.85rem 1.85rem rgba(16, 32, 51, 0.05),
+    inset 0 0 0 1px rgba(194, 92, 46, 0.08);
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-width: 21rem;
   min-width: 0;
   overflow: hidden;
   padding: 0;
+  transition:
+    border-color 0.28s ease,
+    box-shadow 0.28s ease,
+    transform 0.28s ease;
+  width: 100%;
+}
+
+.product-card:hover {
+  border-color: var(--copper);
+  box-shadow:
+    0 1.35rem 2.75rem rgba(16, 32, 51, 0.16),
+    0 0.35rem 0.85rem rgba(194, 92, 46, 0.12),
+    inset 0 0 0 1px rgba(194, 92, 46, 0.18);
+  transform: translateY(-0.4rem);
 }
 
 .product-art {
@@ -1645,19 +1677,22 @@ h3,
     radial-gradient(circle at 30% 20%, rgba(194, 92, 46, 0.16), transparent 45%),
     linear-gradient(165deg, #17324d 0%, var(--navy) 48%, var(--deep-navy) 100%);
   display: flex;
-  height: 16rem;
+  height: 14.5rem;
   justify-content: center;
   margin-bottom: 0;
   overflow: hidden;
+  padding: 1.15rem 1.25rem;
 }
 
 .product-art img {
   display: block;
-  height: 100%;
+  height: auto;
+  max-height: 100%;
+  max-width: 100%;
   object-fit: contain;
   transform: scale(1);
   transition: transform 0.7s ease;
-  width: 100%;
+  width: auto;
 }
 
 .product-art:hover img,
@@ -1681,6 +1716,34 @@ h3,
   .product-art:hover img,
   .product-art:focus-visible img {
     transform: none;
+  }
+
+  .product-card,
+  .shop-preview-card {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .product-card:hover,
+  .shop-preview-card:hover {
+    transform: none;
+  }
+
+  .product-card-footer::before,
+  .product-card-footer::after {
+    transition: none;
+  }
+
+  .product-card:hover .product-card-footer::before,
+  .shop-preview-card:hover .product-card-footer::before {
+    left: 18%;
+    opacity: 0.7;
+    right: 18%;
+  }
+
+  .product-card:hover .product-card-footer::after,
+  .shop-preview-card:hover .product-card-footer::after {
+    box-shadow: none;
+    transform: translateX(-50%) rotate(45deg);
   }
 }
 
@@ -1717,7 +1780,62 @@ h3,
   gap: 0.85rem;
   margin-top: auto;
   min-width: 0;
-  padding-top: 0.85rem;
+  padding-top: 1.15rem;
+  position: relative;
+}
+
+.product-card-footer::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(194, 92, 46, 0.2) 12%,
+    var(--copper) 50%,
+    rgba(194, 92, 46, 0.2) 88%,
+    transparent 100%
+  );
+  content: '';
+  height: 1px;
+  left: 18%;
+  opacity: 0.7;
+  position: absolute;
+  right: 18%;
+  top: 0;
+  transition:
+    left 0.28s ease,
+    right 0.28s ease,
+    opacity 0.28s ease;
+}
+
+.product-card-footer::after {
+  background: var(--oatmeal);
+  border: 1px solid var(--copper);
+  box-shadow: none;
+  content: '';
+  height: 0.42rem;
+  left: 50%;
+  opacity: 0.95;
+  position: absolute;
+  top: -0.2rem;
+  transform: translateX(-50%) rotate(45deg);
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+  width: 0.42rem;
+}
+
+.product-card:hover .product-card-footer::before,
+.shop-preview-card:hover .product-card-footer::before {
+  left: 0.15rem;
+  opacity: 1;
+  right: 0.15rem;
+}
+
+.product-card:hover .product-card-footer::after,
+.shop-preview-card:hover .product-card-footer::after {
+  border-color: var(--copper);
+  box-shadow: 0 0 8px rgba(194, 92, 46, 0.4);
+  transform: translateX(-50%) rotate(45deg) scale(1.15);
 }
 
 .product-card .button {
@@ -1759,7 +1877,7 @@ h3,
 .product-art-placeholder {
   background: rgba(242, 238, 230, 0.08);
   height: 100%;
-  min-height: 16rem;
+  min-height: 11rem;
   width: 100%;
 }
 
@@ -3904,7 +4022,7 @@ h3,
   }
 
   .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
   }
 }
 
@@ -3960,6 +4078,11 @@ h3,
 
   .product-grid {
     grid-template-columns: 1fr;
+  }
+
+  .product-grid > .reveal,
+  .product-card {
+    max-width: none;
   }
 
   .footer-inner {
