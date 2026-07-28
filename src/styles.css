@@ -2551,13 +2551,14 @@ h3,
 
 .subs-feature {
   align-items: stretch;
-  background: var(--oatmeal);
   display: grid;
+  gap: var(--cta-gutter);
   grid-template-columns: 1fr 1fr;
   width: 100%;
 }
 
 .subs-photo-col {
+  background: var(--oatmeal);
   min-height: 0;
   position: relative;
 }
@@ -2606,7 +2607,7 @@ h3,
 .subs-shipping::before {
   background: var(--copper);
   content: '';
-  height: min(68%, 18rem);
+  height: min(58%, 14rem);
   left: 0;
   opacity: 0.7;
   position: absolute;
