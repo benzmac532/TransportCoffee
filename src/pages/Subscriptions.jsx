@@ -5,11 +5,9 @@ import Reveal from '../components/Reveal';
 import Seo from '../components/Seo';
 import { useCart } from '../components/CartContext';
 import { getStaticPageMeta } from '../lib/seoPages';
-import { SUBSCRIPTION_PLAN_DEFS, getSubscriptionOffers } from '../lib/shopify';
+import { getSubscriptionOffers } from '../lib/shopify';
 
 const pageMeta = getStaticPageMeta('/subscriptions');
-
-const FALLBACK_FREQUENCIES = ['Every week', 'Every 2 weeks', 'Every 4 weeks'];
 
 const perks = [
   '$5 flat-rate shipping on every subscription order',
@@ -19,26 +17,19 @@ const perks = [
 ];
 
 function pickDefaultFrequency(sellingPlans) {
-  if (!sellingPlans?.length) return FALLBACK_FREQUENCIES[1];
+  if (!sellingPlans?.length) return '';
   const biweekly = sellingPlans.find((plan) => /2\s*week|bi-?weekly|fortnight/i.test(plan.label));
   return (biweekly || sellingPlans[0]).label;
 }
 
 export default function Subscriptions() {
   const { addSubscription, loading: cartLoading } = useCart();
-  const [plans, setPlans] = useState(
-    SUBSCRIPTION_PLAN_DEFS.map((def) => ({
-      ...def,
-      price: def.priceLabel,
-      sellingPlans: [],
-      available: false,
-    })),
-  );
+  const [plans, setPlans] = useState([]);
   const [ready, setReady] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [loadingOffers, setLoadingOffers] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState('wanderlust');
-  const [frequency, setFrequency] = useState(FALLBACK_FREQUENCIES[1]);
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [frequency, setFrequency] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,9 +44,8 @@ export default function Subscriptions() {
         setReady(offers.ready);
         setStatusMessage(offers.message || '');
         const preferred =
-          offers.plans.find((plan) => plan.id === 'wanderlust' && plan.available) ||
+          offers.plans.find((plan) => plan.featured && plan.available) ||
           offers.plans.find((plan) => plan.available) ||
-          offers.plans.find((plan) => plan.id === 'wanderlust') ||
           offers.plans[0];
         if (preferred) {
           setSelectedPlan(preferred.id);
@@ -65,6 +55,7 @@ export default function Subscriptions() {
         if (!cancelled) {
           setStatusMessage(err.message || 'Could not load subscription plans.');
           setReady(false);
+          setPlans([]);
         }
       } finally {
         if (!cancelled) setLoadingOffers(false);
@@ -84,10 +75,14 @@ export default function Subscriptions() {
     if (activePlan?.sellingPlans?.length) {
       return activePlan.sellingPlans.map((plan) => plan.label);
     }
-    return FALLBACK_FREQUENCIES;
+    return [];
   }, [activePlan]);
 
   useEffect(() => {
+    if (!frequencyOptions.length) {
+      if (frequency) setFrequency('');
+      return;
+    }
     if (!frequencyOptions.includes(frequency)) {
       setFrequency(frequencyOptions[0]);
     }
@@ -156,6 +151,10 @@ export default function Subscriptions() {
               <div className="option-group">
                 <h3>Delivery frequency</h3>
                 <div className="option-row">
+                  {loadingOffers && <p className="subs-freq-empty">Loading frequencies…</p>}
+                  {!loadingOffers && frequencyOptions.length === 0 && (
+                    <p className="subs-freq-empty">Frequencies appear when a plan is available.</p>
+                  )}
                   {frequencyOptions.map((item) => (
                     <button
                       key={item}
@@ -173,35 +172,45 @@ export default function Subscriptions() {
         </section>
 
         <section className="subs-plans-band" aria-label="Subscription plans">
-          <div className="plan-grid">
-            {plans.map((plan, index) => (
-              <Reveal
-                as="button"
-                key={plan.id}
-                delaySteps={index}
-                variant="up"
-                type="button"
-                className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
-                onClick={() => {
-                  setSelectedPlan(plan.id);
-                  setFrequency(pickDefaultFrequency(plan.sellingPlans));
-                  setError('');
-                }}
-              >
-                {plan.featured && <span className="plan-badge">Most popular</span>}
-                <h2>{plan.name}</h2>
-                <p className="plan-price">
-                  {plan.price} <small>{plan.interval}</small>
-                </p>
-                <p>{plan.description}</p>
-                <ul>
-                  {plan.coffees.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </Reveal>
-            ))}
-          </div>
+          {loadingOffers && <p className="subs-status">Loading subscription plans…</p>}
+          {!loadingOffers && plans.length === 0 && (
+            <p className="subs-status" role="status">
+              {statusMessage || 'No subscription plans are available yet.'}
+            </p>
+          )}
+          {plans.length > 0 && (
+            <div className="plan-grid">
+              {plans.map((plan, index) => (
+                <Reveal
+                  as="button"
+                  key={plan.id}
+                  delaySteps={index}
+                  variant="up"
+                  type="button"
+                  className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSelectedPlan(plan.id);
+                    setFrequency(pickDefaultFrequency(plan.sellingPlans));
+                    setError('');
+                  }}
+                >
+                  {plan.featured && <span className="plan-badge">Most popular</span>}
+                  <h2>{plan.name}</h2>
+                  <p className="plan-price">
+                    {plan.price} <small>{plan.interval}</small>
+                  </p>
+                  <p>{plan.description}</p>
+                  {(plan.coffees || []).length > 0 && (
+                    <ul>
+                      {plan.coffees.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </Reveal>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="subs-options-band">
@@ -219,11 +228,6 @@ export default function Subscriptions() {
               ))}
             </ul>
 
-            {!loadingOffers && statusMessage && (
-              <p className="subs-status" role="status">
-                {statusMessage}
-              </p>
-            )}
             {error && (
               <p className="subs-status subs-status-error" role="alert">
                 {error}
@@ -243,7 +247,7 @@ export default function Subscriptions() {
                     ? 'Loading plans…'
                     : canStart
                       ? 'Start subscription'
-                      : 'Link products in Shopify to enable'}
+                      : 'Coming soon'}
               </button>
             </Reveal>
           </Reveal>

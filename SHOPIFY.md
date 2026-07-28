@@ -120,14 +120,13 @@ On the static host, add redirects from old theme URLs:
 
 Live subscription checkout is wired via Storefront selling plans:
 
-1. In Shopify Admin → **Subscriptions**, create Explorer / Wanderlust / Office plans (with delivery frequencies).
-2. **Attach products** to each plan (Storefront only returns selling plans linked to products).
-3. The site loads `sellingPlanGroups` from those products, matches plan names, and adds cart lines with `sellingPlanId`.
-4. Shopify Checkout owns recurring billing once the line includes a selling plan.
+1. In Shopify Admin → **Subscriptions**, create plans (with delivery frequencies) and **attach products**.
+2. The site discovers unique `sellingPlanGroups` from the catalog and builds cards automatically.
+3. Optional marketing overlays in `SUBSCRIPTION_PLAN_OVERLAYS` polish known plan names (copy, featured badge, preferred product).
+4. Cart lines are added with `sellingPlanId`; frequencies come from each group’s `sellingPlans`.
+5. Shopify Checkout owns recurring billing once the line includes a selling plan.
 
-If plans show **Products: None** in Admin, the subscriptions page shows a setup message and the Start CTA stays disabled.
-
-Storefront token needs access to products and cart mutations (same as regular checkout). Selling plan fields require the catalog to expose them on attached products.
+If no products are attached, the subscriptions page shows an empty / coming-soon state.
 
 ## Smoke test checklist
 

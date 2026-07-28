@@ -30,10 +30,12 @@ export const SHOP_COLLECTIONS = [
   { label: 'Brew Gear', to: '/shop/collections/brew-gear', handle: 'brew-gear' },
 ];
 
-/** Marketing copy + matching rules for Shopify selling plan groups. */
-export const SUBSCRIPTION_PLAN_DEFS = [
+/**
+ * Optional marketing overlays for Shopify selling plan groups (matched by name).
+ * Cards themselves are discovered from the Storefront API; overlays only polish known plans.
+ */
+export const SUBSCRIPTION_PLAN_OVERLAYS = [
   {
-    id: 'explorer',
     match: /explorer/i,
     name: 'Explorer',
     quantity: 1,
@@ -41,20 +43,30 @@ export const SUBSCRIPTION_PLAN_DEFS = [
     interval: 'per delivery',
     description: 'One 12oz bag of our rotating single origin.',
     coffees: ['Rotating single origin', 'Freshly roasted weekly'],
+    order: 10,
   },
   {
-    id: 'wanderlust',
     match: /wanderlust/i,
     name: 'Wanderlust',
-    quantity: 2,
-    priceLabel: '$34',
+    quantity: 1,
+    preferredHandles: ['frequent-flyer'],
     interval: 'per delivery',
-    description: 'Two 12oz bags, perfect for households and heavy brewers.',
-    coffees: ['Frequent Flyer + rotating origin', 'Best value for daily drinkers'],
+    description: 'A bag of house coffee on your schedule — subscribe and save.',
+    coffees: ['Built for daily drinkers', 'Pause or skip anytime'],
     featured: true,
+    order: 20,
   },
   {
-    id: 'office',
+    match: /roaster'?s?\s*choice|single origin/i,
+    name: "Roaster's Choice",
+    quantity: 1,
+    preferredHandles: ['ethiopia-danbi-udo', 'colombia-honey-process', 'peru-minca-organic'],
+    interval: 'per delivery',
+    description: 'Rotating single-origin bags, curated by our roasting team.',
+    coffees: ['Seasonal origins', 'Freshly roasted for each delivery'],
+    order: 30,
+  },
+  {
     match: /office/i,
     name: 'Office',
     quantity: 5,
@@ -62,8 +74,12 @@ export const SUBSCRIPTION_PLAN_DEFS = [
     interval: 'per delivery',
     description: 'Five 12oz bags for teams that run on good coffee.',
     coffees: ['Custom blend options', 'Priority roasting schedule'],
+    order: 40,
   },
 ];
+
+/** @deprecated Use SUBSCRIPTION_PLAN_OVERLAYS — kept as alias for older imports. */
+export const SUBSCRIPTION_PLAN_DEFS = SUBSCRIPTION_PLAN_OVERLAYS;
 
 export function isStorefrontConfigured() {
   return Boolean(storeDomain && storefrontToken);
@@ -591,69 +607,136 @@ export async function addSubscriptionToCart({
 
 function sellingPlanLabel(plan) {
   const delivery = plan.options?.find((opt) => /delivery|frequency|interval/i.test(opt.name));
-  if (delivery?.value) return delivery.value;
-  return plan.name || 'Delivery';
+  let label = (delivery?.value || plan.name || 'Delivery').trim();
+  label = label.replace(/^deliver\s+/i, '');
+  if (label) label = label.charAt(0).toUpperCase() + label.slice(1);
+  return label;
+}
+
+function frequencySortKey(label = '') {
+  const weeks = label.match(/(\d+)\s*weeks?/i);
+  if (weeks) return Number(weeks[1]);
+  if (/every\s+week\b/i.test(label) || /^weekly$/i.test(label)) return 1;
+  if (/month/i.test(label)) return 30;
+  return 100;
+}
+
+function slugifyPlanId(name) {
+  const slug = String(name || 'plan')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'plan';
+}
+
+function findPlanOverlay(groupName) {
+  return SUBSCRIPTION_PLAN_OVERLAYS.find((overlay) => overlay.match.test(groupName || '')) || null;
+}
+
+function pickProductForGroup(products, overlay) {
+  const preferred = overlay?.preferredHandles || [];
+  for (const handle of preferred) {
+    const hit = products.find((p) => p.handle === handle);
+    if (hit) return hit;
+  }
+  for (const handle of FEATURED_HANDLES) {
+    const hit = products.find((p) => p.handle === handle);
+    if (hit) return hit;
+  }
+  return products[0] || null;
 }
 
 /**
- * Resolve Explorer / Wanderlust / Office cards from Storefront sellingPlanGroups.
- * Returns plan defs with live sellingPlans when products are attached in Shopify Admin.
+ * Discover selling plan groups from Storefront and merge optional marketing overlays.
+ * New Shopify groups appear automatically; overlays polish known names.
  */
 export async function getSubscriptionOffers({ first = 50 } = {}) {
   if (!isStorefrontConfigured()) {
     return {
       configured: false,
       ready: false,
-      plans: SUBSCRIPTION_PLAN_DEFS.map((def) => ({
-        ...def,
-        price: def.priceLabel,
-        sellingPlans: [],
-        merchandiseId: null,
-        productHandle: null,
-        productTitle: null,
-        available: false,
-      })),
+      plans: [],
       message: storefrontConfigHint() || 'Storefront API is not configured.',
     };
   }
 
   const products = await getProducts({ first });
-  const withPlans = products.filter((p) => (p.sellingPlanGroups || []).length > 0);
+  const groupsByKey = new Map();
 
-  const plans = SUBSCRIPTION_PLAN_DEFS.map((def) => {
-    let matchedProduct = null;
-    let matchedGroup = null;
-
-    for (const product of withPlans) {
-      const group = (product.sellingPlanGroups || []).find((g) => def.match.test(g.name || ''));
-      if (group) {
-        matchedProduct = product;
-        matchedGroup = group;
-        break;
+  for (const product of products) {
+    for (const group of product.sellingPlanGroups || []) {
+      const key = (group.name || '').trim().toLowerCase();
+      if (!key) continue;
+      const entry = groupsByKey.get(key) || {
+        name: group.name,
+        sellingPlansById: new Map(),
+        products: [],
+      };
+      entry.products.push(product);
+      for (const plan of group.sellingPlans || []) {
+        if (plan?.id) entry.sellingPlansById.set(plan.id, plan);
       }
+      groupsByKey.set(key, entry);
     }
+  }
 
-    const sellingPlans = (matchedGroup?.sellingPlans || []).map((plan) => ({
-      id: plan.id,
-      name: plan.name,
-      label: sellingPlanLabel(plan),
-    }));
+  const plans = [...groupsByKey.values()]
+    .map((entry) => {
+      const overlay = findPlanOverlay(entry.name);
+      const product = pickProductForGroup(entry.products, overlay);
+      const variant =
+        product?.variants?.find((v) => v.availableForSale) || product?.variants?.[0] || null;
 
-    const variant =
-      matchedProduct?.variants?.find((v) => v.availableForSale) || matchedProduct?.variants?.[0];
+      const sellingPlans = [...entry.sellingPlansById.values()]
+        .map((plan) => ({
+          id: plan.id,
+          name: plan.name,
+          label: sellingPlanLabel(plan),
+        }))
+        .sort((a, b) => frequencySortKey(a.label) - frequencySortKey(b.label));
 
-    return {
-      ...def,
-      price: def.priceLabel,
-      sellingPlans,
-      merchandiseId: variant?.id || null,
-      productHandle: matchedProduct?.handle || null,
-      productTitle: matchedProduct?.title || null,
-      available: Boolean(variant?.id && sellingPlans.length),
-    };
-  });
+      // Dedupe labels while keeping stable plan ids (first wins after sort).
+      const seenLabels = new Set();
+      const uniquePlans = sellingPlans.filter((plan) => {
+        if (seenLabels.has(plan.label)) return false;
+        seenLabels.add(plan.label);
+        return true;
+      });
 
-  const ready = plans.some((p) => p.available);
+      const livePrice =
+        variant?.price != null
+          ? formatMoney(variant.price.amount, variant.price.currencyCode)
+          : '';
+
+      return {
+        id: slugifyPlanId(overlay?.name || entry.name),
+        name: overlay?.name || entry.name,
+        groupName: entry.name,
+        quantity: overlay?.quantity ?? 1,
+        price: overlay?.priceLabel || livePrice || '—',
+        interval: overlay?.interval || 'per delivery',
+        description:
+          overlay?.description ||
+          product?.description?.slice(0, 140) ||
+          'Fresh coffee delivered on your schedule.',
+        coffees: overlay?.coffees || (product?.title ? [product.title, 'Pause or skip anytime'] : []),
+        featured: Boolean(overlay?.featured),
+        order: overlay?.order ?? 500,
+        sellingPlans: uniquePlans,
+        merchandiseId: variant?.id || null,
+        productHandle: product?.handle || null,
+        productTitle: product?.title || null,
+        available: Boolean(variant?.id && uniquePlans.length),
+      };
+    })
+    .filter((plan) => plan.available)
+    .sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      if (a.order !== b.order) return a.order - b.order;
+      return a.name.localeCompare(b.name);
+    });
+
+  const ready = plans.length > 0;
 
   return {
     configured: true,
@@ -661,7 +744,7 @@ export async function getSubscriptionOffers({ first = 50 } = {}) {
     plans,
     message: ready
       ? ''
-      : 'Subscription plans are not linked to products yet. In Shopify Admin → Subscriptions, attach products to Explorer, Wanderlust, and Office.',
+      : 'Subscription plans are not linked to products yet. Attach products to selling plans in Shopify Admin → Subscriptions.',
   };
 }
 

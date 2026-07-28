@@ -2918,6 +2918,12 @@ h3,
   color: #9b2c2c;
 }
 
+.subs-freq-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .subs-visual img {
     transition: none;
