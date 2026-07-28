@@ -53,7 +53,25 @@ If a handle is missing, the shop page falls back to all products.
 
 - Cart ID is stored in `localStorage` (`tcr_shopify_cart_id`).
 - Checkout redirects to Shopify’s hosted `checkoutUrl` (PCI-compliant).
-- Shopify often returns checkout links on the **primary domain** (`transportcoffeeroasters.com`). Because that domain hosts this React app, the client rewrites `/cart/*` and `/checkout*` URLs to `VITE_SHOPIFY_STORE_DOMAIN` (`*.myshopify.com`) before redirecting.
+- The client rewrites `/cart/*` and `/checkout*` hosts to `VITE_SHOPIFY_STORE_DOMAIN` when needed.
+
+### Checkout opens the React 404 (`/cart/c/...`)
+
+This is a **Shopify domain** issue, not a missing React route.
+
+If `transportcoffeeroasters.com` is still the Shopify **primary** (or connected storefront) domain while DNS points that host to Vercel:
+
+1. Storefront returns / redirects checkout to `https://transportcoffeeroasters.com/cart/c/...`
+2. Vercel serves the SPA (`200` + `index.html`)
+3. React shows “Page not found”
+
+**Fix in Shopify Admin → Settings → Domains:**
+
+1. Set **`bk6zru-20.myshopify.com`** as primary, **or** connect `shop.transportcoffeeroasters.com` to Shopify and make that primary.
+2. Disconnect apex/`www` from Shopify as the online-store domain (keep those DNS records on Vercel only).
+3. Confirm Checkout stays on the Shopify-hosted host and no longer bounces back to the marketing site.
+
+Do **not** try to SPA-route or permanently proxy `/cart/c` on the marketing domain while it remains Shopify’s primary — Shopify will keep redirecting there.
 
 ## 5. Domain cutover (host this site on transportcoffeeroasters.com)
 
