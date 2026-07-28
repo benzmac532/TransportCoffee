@@ -53,6 +53,7 @@ If a handle is missing, the shop page falls back to all products.
 
 - Cart ID is stored in `localStorage` (`tcr_shopify_cart_id`).
 - Checkout redirects to Shopify’s hosted `checkoutUrl` (PCI-compliant).
+- Shopify often returns checkout links on the **primary domain** (`transportcoffeeroasters.com`). Because that domain hosts this React app, the client rewrites `/cart/*` and `/checkout*` URLs to `VITE_SHOPIFY_STORE_DOMAIN` (`*.myshopify.com`) before redirecting.
 
 ## 5. Domain cutover (host this site on transportcoffeeroasters.com)
 
@@ -99,7 +100,16 @@ On the static host, add redirects from old theme URLs:
 
 ### Subscriptions
 
-Live subscription checkout is phase 2 (needs a Shopify subscriptions app + selling plans). Catalog/cart does not depend on that.
+Live subscription checkout is wired via Storefront selling plans:
+
+1. In Shopify Admin → **Subscriptions**, create Explorer / Wanderlust / Office plans (with delivery frequencies).
+2. **Attach products** to each plan (Storefront only returns selling plans linked to products).
+3. The site loads `sellingPlanGroups` from those products, matches plan names, and adds cart lines with `sellingPlanId`.
+4. Shopify Checkout owns recurring billing once the line includes a selling plan.
+
+If plans show **Products: None** in Admin, the subscriptions page shows a setup message and the Start CTA stays disabled.
+
+Storefront token needs access to products and cart mutations (same as regular checkout). Selling plan fields require the catalog to expose them on attached products.
 
 ## Smoke test checklist
 

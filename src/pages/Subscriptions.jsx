@@ -1,53 +1,126 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Check } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import Reveal from '../components/Reveal';
 import Seo from '../components/Seo';
+import { useCart } from '../components/CartContext';
 import { getStaticPageMeta } from '../lib/seoPages';
+import { SUBSCRIPTION_PLAN_DEFS, getSubscriptionOffers } from '../lib/shopify';
 
 const pageMeta = getStaticPageMeta('/subscriptions');
 
-const plans = [
-  {
-    id: 'explorer',
-    name: 'Explorer',
-    price: '$18',
-    interval: 'per delivery',
-    description: 'One 12oz bag of our rotating single origin.',
-    coffees: ['Rotating single origin', 'Freshly roasted weekly'],
-  },
-  {
-    id: 'wanderlust',
-    name: 'Wanderlust',
-    price: '$34',
-    interval: 'per delivery',
-    description: 'Two 12oz bags, perfect for households and heavy brewers.',
-    coffees: ['Frequent Flyer + rotating origin', 'Best value for daily drinkers'],
-    featured: true,
-  },
-  {
-    id: 'office',
-    name: 'Office',
-    price: '$72',
-    interval: 'per delivery',
-    description: 'Five 12oz bags for teams that run on good coffee.',
-    coffees: ['Custom blend options', 'Priority roasting schedule'],
-  },
-];
-
-const frequencies = ['Every week', 'Every 2 weeks', 'Every 4 weeks'];
+const FALLBACK_FREQUENCIES = ['Every week', 'Every 2 weeks', 'Every 4 weeks'];
 
 const perks = [
   '$5 flat-rate shipping on every subscription order',
   'Save on recurring deliveries',
   'Pause, skip, or cancel anytime',
-  'Shopify subscription checkout coming soon',
+  'Freshly roasted for every delivery',
 ];
 
+function pickDefaultFrequency(sellingPlans) {
+  if (!sellingPlans?.length) return FALLBACK_FREQUENCIES[1];
+  const biweekly = sellingPlans.find((plan) => /2\s*week|bi-?weekly|fortnight/i.test(plan.label));
+  return (biweekly || sellingPlans[0]).label;
+}
+
 export default function Subscriptions() {
+  const { addSubscription, loading: cartLoading } = useCart();
+  const [plans, setPlans] = useState(
+    SUBSCRIPTION_PLAN_DEFS.map((def) => ({
+      ...def,
+      price: def.priceLabel,
+      sellingPlans: [],
+      available: false,
+    })),
+  );
+  const [ready, setReady] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [loadingOffers, setLoadingOffers] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState('wanderlust');
-  const [frequency, setFrequency] = useState('Every 2 weeks');
-  const [grind, setGrind] = useState('Whole bean');
+  const [frequency, setFrequency] = useState(FALLBACK_FREQUENCIES[1]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoadingOffers(true);
+      try {
+        const offers = await getSubscriptionOffers();
+        if (cancelled) return;
+        setPlans(offers.plans);
+        setReady(offers.ready);
+        setStatusMessage(offers.message || '');
+        const preferred =
+          offers.plans.find((plan) => plan.id === 'wanderlust' && plan.available) ||
+          offers.plans.find((plan) => plan.available) ||
+          offers.plans.find((plan) => plan.id === 'wanderlust') ||
+          offers.plans[0];
+        if (preferred) {
+          setSelectedPlan(preferred.id);
+          setFrequency(pickDefaultFrequency(preferred.sellingPlans));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setStatusMessage(err.message || 'Could not load subscription plans.');
+          setReady(false);
+        }
+      } finally {
+        if (!cancelled) setLoadingOffers(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const activePlan = useMemo(
+    () => plans.find((plan) => plan.id === selectedPlan) || plans[0],
+    [plans, selectedPlan],
+  );
+
+  const frequencyOptions = useMemo(() => {
+    if (activePlan?.sellingPlans?.length) {
+      return activePlan.sellingPlans.map((plan) => plan.label);
+    }
+    return FALLBACK_FREQUENCIES;
+  }, [activePlan]);
+
+  useEffect(() => {
+    if (!frequencyOptions.includes(frequency)) {
+      setFrequency(frequencyOptions[0]);
+    }
+  }, [frequencyOptions, frequency]);
+
+  const selectedSellingPlan = useMemo(() => {
+    if (!activePlan?.sellingPlans?.length) return null;
+    return (
+      activePlan.sellingPlans.find((plan) => plan.label === frequency) ||
+      activePlan.sellingPlans[0]
+    );
+  }, [activePlan, frequency]);
+
+  const canStart =
+    ready &&
+    Boolean(activePlan?.available && activePlan?.merchandiseId && selectedSellingPlan?.id);
+
+  async function handleStartSubscription() {
+    if (!canStart || submitting) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      await addSubscription({
+        merchandiseId: activePlan.merchandiseId,
+        quantity: activePlan.quantity || 1,
+        sellingPlanId: selectedSellingPlan.id,
+      });
+    } catch (err) {
+      setError(err.message || 'Could not start subscription.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <main className="page subscriptions-page">
@@ -62,8 +135,8 @@ export default function Subscriptions() {
           <Reveal className="subs-photo-col" variant="left" delaySteps={1}>
             <aside className="subs-visual">
               <img
-                src="/roaster-cooling.png"
-                alt="Freshly roasted coffee beans cooling in a roasting bin"
+                src="/brew-bar.jpg"
+                alt="Home brew bar with grinder, kettle, pour-over, and Transport Coffee beans"
                 loading="lazy"
                 decoding="async"
               />
@@ -83,28 +156,12 @@ export default function Subscriptions() {
               <div className="option-group">
                 <h3>Delivery frequency</h3>
                 <div className="option-row">
-                  {frequencies.map((item) => (
+                  {frequencyOptions.map((item) => (
                     <button
                       key={item}
                       type="button"
                       className={`option-pill ${frequency === item ? 'active' : ''}`}
                       onClick={() => setFrequency(item)}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="option-group">
-                <h3>Grind preference</h3>
-                <div className="option-row">
-                  {['Whole bean', 'Drip', 'Espresso', 'French press'].map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className={`option-pill ${grind === item ? 'active' : ''}`}
-                      onClick={() => setGrind(item)}
                     >
                       {item}
                     </button>
@@ -125,7 +182,11 @@ export default function Subscriptions() {
                 variant="up"
                 type="button"
                 className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
-                onClick={() => setSelectedPlan(plan.id)}
+                onClick={() => {
+                  setSelectedPlan(plan.id);
+                  setFrequency(pickDefaultFrequency(plan.sellingPlans));
+                  setError('');
+                }}
               >
                 {plan.featured && <span className="plan-badge">Most popular</span>}
                 <h2>{plan.name}</h2>
@@ -157,9 +218,32 @@ export default function Subscriptions() {
                 </Reveal>
               ))}
             </ul>
+
+            {!loadingOffers && statusMessage && (
+              <p className="subs-status" role="status">
+                {statusMessage}
+              </p>
+            )}
+            {error && (
+              <p className="subs-status subs-status-error" role="alert">
+                {error}
+              </p>
+            )}
+
             <Reveal delaySteps={perks.length} variant="up">
-              <button type="button" className="button" disabled>
-                Start subscription (Coming soon)
+              <button
+                type="button"
+                className="button"
+                disabled={!canStart || submitting || cartLoading || loadingOffers}
+                onClick={handleStartSubscription}
+              >
+                {submitting || cartLoading
+                  ? 'Adding…'
+                  : loadingOffers
+                    ? 'Loading plans…'
+                    : canStart
+                      ? 'Start subscription'
+                      : 'Link products in Shopify to enable'}
               </button>
             </Reveal>
           </Reveal>

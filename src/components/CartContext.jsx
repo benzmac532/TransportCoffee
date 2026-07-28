@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   addLinesToCart,
+  addSubscriptionToCart,
   getCart,
   isStorefrontConfigured,
   removeCartLine,
@@ -32,26 +33,41 @@ export function CartProvider({ children }) {
     refreshCart();
   }, [refreshCart]);
 
-  const addItem = useCallback(
-    async (merchandiseId, quantity = 1) => {
-      setLoading(true);
-      setError('');
-      try {
-        const next = await addLinesToCart(merchandiseId, quantity);
-        setCart(next);
-        setOpen(true);
-        return next;
-      } catch (err) {
-        const message = err.message || 'Could not add to cart.';
-        setError(message);
-        setOpen(true);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+  const addItem = useCallback(async (merchandiseId, quantity = 1, options = {}) => {
+    setLoading(true);
+    setError('');
+    try {
+      const next = await addLinesToCart(merchandiseId, quantity, options);
+      setCart(next);
+      setOpen(true);
+      return next;
+    } catch (err) {
+      const message = err.message || 'Could not add to cart.';
+      setError(message);
+      setOpen(true);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const addSubscription = useCallback(async (input) => {
+    setLoading(true);
+    setError('');
+    try {
+      const next = await addSubscriptionToCart(input);
+      setCart(next);
+      setOpen(true);
+      return next;
+    } catch (err) {
+      const message = err.message || 'Could not start subscription.';
+      setError(message);
+      setOpen(true);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const updateQuantity = useCallback(async (lineId, quantity) => {
     setLoading(true);
@@ -102,13 +118,26 @@ export function CartProvider({ children }) {
       openCart: () => setOpen(true),
       closeCart: () => setOpen(false),
       addItem,
+      addSubscription,
       updateQuantity,
       removeItem,
       checkout,
       refreshCart,
       clearError: () => setError(''),
     }),
-    [cart, open, loading, error, configured, addItem, updateQuantity, removeItem, checkout, refreshCart],
+    [
+      cart,
+      open,
+      loading,
+      error,
+      configured,
+      addItem,
+      addSubscription,
+      updateQuantity,
+      removeItem,
+      checkout,
+      refreshCart,
+    ],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -30,6 +30,41 @@ export const SHOP_COLLECTIONS = [
   { label: 'Brew Gear', to: '/shop/collections/brew-gear', handle: 'brew-gear' },
 ];
 
+/** Marketing copy + matching rules for Shopify selling plan groups. */
+export const SUBSCRIPTION_PLAN_DEFS = [
+  {
+    id: 'explorer',
+    match: /explorer/i,
+    name: 'Explorer',
+    quantity: 1,
+    priceLabel: '$18',
+    interval: 'per delivery',
+    description: 'One 12oz bag of our rotating single origin.',
+    coffees: ['Rotating single origin', 'Freshly roasted weekly'],
+  },
+  {
+    id: 'wanderlust',
+    match: /wanderlust/i,
+    name: 'Wanderlust',
+    quantity: 2,
+    priceLabel: '$34',
+    interval: 'per delivery',
+    description: 'Two 12oz bags, perfect for households and heavy brewers.',
+    coffees: ['Frequent Flyer + rotating origin', 'Best value for daily drinkers'],
+    featured: true,
+  },
+  {
+    id: 'office',
+    match: /office/i,
+    name: 'Office',
+    quantity: 5,
+    priceLabel: '$72',
+    interval: 'per delivery',
+    description: 'Five 12oz bags for teams that run on good coffee.',
+    coffees: ['Custom blend options', 'Priority roasting schedule'],
+  },
+];
+
 export function isStorefrontConfigured() {
   return Boolean(storeDomain && storefrontToken);
 }
@@ -102,6 +137,18 @@ function mapStorefrontProduct(node) {
   if (!node) return null;
   const variant = node.selectedOrFirstAvailableVariant || node.variants?.nodes?.[0];
   const image = node.featuredImage || node.images?.nodes?.[0];
+  const sellingPlanGroups = (node.sellingPlanGroups?.nodes || []).map((group) => ({
+    name: group.name || '',
+    sellingPlans: (group.sellingPlans?.nodes || []).map((plan) => ({
+      id: plan.id,
+      name: plan.name || '',
+      description: plan.description || '',
+      options: (plan.options || []).map((opt) => ({
+        name: opt.name || '',
+        value: opt.value || '',
+      })),
+    })),
+  }));
   return {
     id: node.id,
     handle: node.handle,
@@ -124,6 +171,7 @@ function mapStorefrontProduct(node) {
       selectedOptions: v.selectedOptions || [],
     })),
     options: node.options || [],
+    sellingPlanGroups,
   };
 }
 
@@ -174,7 +222,25 @@ function mapAjaxProduct(product) {
       ].filter(Boolean),
     })),
     options: normalizedOptions,
+    sellingPlanGroups: [],
   };
+}
+
+function normalizeCheckoutUrl(url) {
+  if (!url || !storeDomain) return url || null;
+  try {
+    const parsed = new URL(url);
+    // Shopify may return checkout on the primary/custom domain. That domain now
+    // hosts this React app, so rewrite to the myshopify host for real checkout.
+    if (/^\/(cart|checkouts?)\b/i.test(parsed.pathname)) {
+      parsed.protocol = 'https:';
+      parsed.host = storeDomain;
+      return parsed.toString();
+    }
+  } catch {
+    /* keep original */
+  }
+  return url;
 }
 
 function mapCart(cart) {
@@ -182,6 +248,16 @@ function mapCart(cart) {
   const lines = (cart.lines?.nodes || []).map((line) => ({
     id: line.id,
     quantity: line.quantity,
+    attributes: (line.attributes || []).map((attr) => ({
+      key: attr.key,
+      value: attr.value,
+    })),
+    sellingPlan: line.sellingPlanAllocation?.sellingPlan
+      ? {
+          id: line.sellingPlanAllocation.sellingPlan.id,
+          name: line.sellingPlanAllocation.sellingPlan.name,
+        }
+      : null,
     merchandise: {
       id: line.merchandise?.id,
       title: line.merchandise?.title,
@@ -196,12 +272,28 @@ function mapCart(cart) {
 
   return {
     id: cart.id,
-    checkoutUrl: cart.checkoutUrl,
+    checkoutUrl: normalizeCheckoutUrl(cart.checkoutUrl),
     totalQuantity: cart.totalQuantity || 0,
     cost: cart.cost,
     lines,
   };
 }
+
+const SELLING_PLAN_FIELDS = `
+  sellingPlanGroups(first: 10) {
+    nodes {
+      name
+      sellingPlans(first: 10) {
+        nodes {
+          id
+          name
+          description
+          options { name value }
+        }
+      }
+    }
+  }
+`;
 
 const PRODUCT_FIELDS = `
   id
@@ -229,6 +321,7 @@ const PRODUCT_FIELDS = `
       selectedOptions { name value }
     }
   }
+  ${SELLING_PLAN_FIELDS}
 `;
 
 const CART_FIELDS = `
@@ -243,7 +336,11 @@ const CART_FIELDS = `
     nodes {
       id
       quantity
+      attributes { key value }
       cost { totalAmount { amount currencyCode } }
+      sellingPlanAllocation {
+        sellingPlan { id name }
+      }
       merchandise {
         ... on ProductVariant {
           id
@@ -436,12 +533,19 @@ export async function createCart(lines = []) {
   return cart;
 }
 
-export async function addLinesToCart(merchandiseId, quantity = 1) {
+function buildCartLineInput(merchandiseId, quantity = 1, options = {}) {
+  const line = { merchandiseId, quantity };
+  if (options.sellingPlanId) line.sellingPlanId = options.sellingPlanId;
+  if (options.attributes?.length) line.attributes = options.attributes;
+  return line;
+}
+
+export async function addLinesToCart(merchandiseId, quantity = 1, options = {}) {
   if (!isStorefrontConfigured()) {
     throw new Error(storefrontConfigHint() || 'Cart requires Shopify Storefront API credentials.');
   }
 
-  const lines = [{ merchandiseId, quantity }];
+  const lines = [buildCartLineInput(merchandiseId, quantity, options)];
   let cartId = getStoredCartId();
 
   if (!cartId) {
@@ -470,6 +574,95 @@ export async function addLinesToCart(merchandiseId, quantity = 1) {
   const cart = mapCart(data.cartLinesAdd.cart);
   if (cart?.id) setStoredCartId(cart.id);
   return cart;
+}
+
+/** Add a subscription line (merchandise + sellingPlanId). */
+export async function addSubscriptionToCart({
+  merchandiseId,
+  quantity = 1,
+  sellingPlanId,
+} = {}) {
+  if (!merchandiseId || !sellingPlanId) {
+    throw new Error('Subscription requires a product variant and selling plan.');
+  }
+
+  return addLinesToCart(merchandiseId, quantity, { sellingPlanId });
+}
+
+function sellingPlanLabel(plan) {
+  const delivery = plan.options?.find((opt) => /delivery|frequency|interval/i.test(opt.name));
+  if (delivery?.value) return delivery.value;
+  return plan.name || 'Delivery';
+}
+
+/**
+ * Resolve Explorer / Wanderlust / Office cards from Storefront sellingPlanGroups.
+ * Returns plan defs with live sellingPlans when products are attached in Shopify Admin.
+ */
+export async function getSubscriptionOffers({ first = 50 } = {}) {
+  if (!isStorefrontConfigured()) {
+    return {
+      configured: false,
+      ready: false,
+      plans: SUBSCRIPTION_PLAN_DEFS.map((def) => ({
+        ...def,
+        price: def.priceLabel,
+        sellingPlans: [],
+        merchandiseId: null,
+        productHandle: null,
+        productTitle: null,
+        available: false,
+      })),
+      message: storefrontConfigHint() || 'Storefront API is not configured.',
+    };
+  }
+
+  const products = await getProducts({ first });
+  const withPlans = products.filter((p) => (p.sellingPlanGroups || []).length > 0);
+
+  const plans = SUBSCRIPTION_PLAN_DEFS.map((def) => {
+    let matchedProduct = null;
+    let matchedGroup = null;
+
+    for (const product of withPlans) {
+      const group = (product.sellingPlanGroups || []).find((g) => def.match.test(g.name || ''));
+      if (group) {
+        matchedProduct = product;
+        matchedGroup = group;
+        break;
+      }
+    }
+
+    const sellingPlans = (matchedGroup?.sellingPlans || []).map((plan) => ({
+      id: plan.id,
+      name: plan.name,
+      label: sellingPlanLabel(plan),
+    }));
+
+    const variant =
+      matchedProduct?.variants?.find((v) => v.availableForSale) || matchedProduct?.variants?.[0];
+
+    return {
+      ...def,
+      price: def.priceLabel,
+      sellingPlans,
+      merchandiseId: variant?.id || null,
+      productHandle: matchedProduct?.handle || null,
+      productTitle: matchedProduct?.title || null,
+      available: Boolean(variant?.id && sellingPlans.length),
+    };
+  });
+
+  const ready = plans.some((p) => p.available);
+
+  return {
+    configured: true,
+    ready,
+    plans,
+    message: ready
+      ? ''
+      : 'Subscription plans are not linked to products yet. In Shopify Admin → Subscriptions, attach products to Explorer, Wanderlust, and Office.',
+  };
 }
 
 export async function updateCartLine(lineId, quantity) {

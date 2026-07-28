@@ -2266,7 +2266,17 @@ h3,
 
 .cart-line-meta span {
   color: var(--muted);
+  display: block;
   font-size: 0.85rem;
+}
+
+.cart-line-subscription {
+  color: var(--copper) !important;
+  font-weight: 600;
+}
+
+.cart-line-attr {
+  font-size: 0.8rem !important;
 }
 
 .cart-qty {
@@ -2570,7 +2580,7 @@ h3,
   display: block;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: 62% center;
   transform: scale(1);
   transition: transform 0.8s ease;
   width: 100%;
@@ -2893,6 +2903,19 @@ h3,
   color: var(--copper);
   flex-shrink: 0;
   margin-top: 0.15em;
+}
+
+.subs-status {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 auto 1.25rem;
+  max-width: 32rem;
+  text-align: center;
+}
+
+.subs-status-error {
+  color: #9b2c2c;
 }
 
 @media (prefers-reduced-motion: reduce) {

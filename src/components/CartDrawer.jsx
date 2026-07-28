@@ -173,6 +173,16 @@ export default function CartDrawer() {
                   <div className="cart-line-meta">
                     <strong>{line.merchandise.productTitle}</strong>
                     {line.merchandise.title !== 'Default Title' && <span>{line.merchandise.title}</span>}
+                    {line.sellingPlan?.name && (
+                      <span className="cart-line-subscription">Subscribe · {line.sellingPlan.name}</span>
+                    )}
+                    {(line.attributes || [])
+                      .filter((attr) => attr.key && attr.value)
+                      .map((attr) => (
+                        <span key={`${attr.key}-${attr.value}`} className="cart-line-attr">
+                          {attr.key}: {attr.value}
+                        </span>
+                      ))}
                     <span>
                       {formatMoney(
                         line.cost?.amount || line.merchandise.price?.amount,
