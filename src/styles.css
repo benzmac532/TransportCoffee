@@ -2790,6 +2790,16 @@ h3,
   color: rgba(242, 238, 230, 0.65);
 }
 
+.plan-card.selected .plan-price-compare {
+  color: rgba(242, 238, 230, 0.45);
+}
+
+.plan-card.selected .plan-save {
+  background: rgba(196, 107, 58, 0.22);
+  border-color: rgba(196, 107, 58, 0.55);
+  color: #f2eee6;
+}
+
 .plan-badge {
   background: var(--copper);
   color: white;
@@ -2811,15 +2821,48 @@ h3,
 
 .plan-price {
   color: var(--copper);
+  margin: 0 0 0.75rem;
+}
+
+.plan-price-row {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+}
+
+.plan-price-current {
   font-size: 2rem;
   font-weight: 900;
-  margin: 0 0 0.75rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.plan-price-compare {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: line-through;
+}
+
+.plan-save {
+  align-self: center;
+  background: rgba(196, 107, 58, 0.12);
+  border: 1px solid rgba(196, 107, 58, 0.35);
+  color: var(--copper);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.28rem 0.5rem;
+  text-transform: uppercase;
 }
 
 .plan-price small {
   color: var(--muted);
+  display: block;
   font-size: 0.8rem;
   font-weight: 700;
+  margin-top: 0.35rem;
 }
 
 .plan-card ul {

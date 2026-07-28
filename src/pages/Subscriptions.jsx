@@ -196,9 +196,18 @@ export default function Subscriptions() {
                 >
                   {plan.featured && <span className="plan-badge">Most popular</span>}
                   <h2>{plan.name}</h2>
-                  <p className="plan-price">
-                    {plan.price} <small>{plan.interval}</small>
-                  </p>
+                  <div className="plan-price">
+                    <div className="plan-price-row">
+                      <span className="plan-price-current">{plan.price}</span>
+                      {plan.compareAtPrice && (
+                        <span className="plan-price-compare">{plan.compareAtPrice}</span>
+                      )}
+                      {plan.discountPercent > 0 && (
+                        <span className="plan-save">Save {plan.discountPercent}%</span>
+                      )}
+                    </div>
+                    <small>{plan.interval}</small>
+                  </div>
                   <p>{plan.description}</p>
                   {(plan.coffees || []).length > 0 && (
                     <ul>

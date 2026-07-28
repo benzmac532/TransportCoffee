@@ -163,6 +163,13 @@ function mapStorefrontProduct(node) {
         name: opt.name || '',
         value: opt.value || '',
       })),
+      discountPercent: (() => {
+        const adj = plan.priceAdjustments?.[0]?.adjustmentValue;
+        if (adj && typeof adj.adjustmentPercentage === 'number') {
+          return adj.adjustmentPercentage;
+        }
+        return null;
+      })(),
     })),
   }));
   return {
@@ -185,6 +192,11 @@ function mapStorefrontProduct(node) {
       availableForSale: v.availableForSale,
       price: v.price,
       selectedOptions: v.selectedOptions || [],
+      sellingPlanAllocations: (v.sellingPlanAllocations?.nodes || []).map((alloc) => ({
+        sellingPlanId: alloc.sellingPlan?.id,
+        price: alloc.priceAdjustments?.[0]?.price || null,
+        compareAtPrice: alloc.priceAdjustments?.[0]?.compareAtPrice || null,
+      })),
     })),
     options: node.options || [],
     sellingPlanGroups,
@@ -305,6 +317,19 @@ const SELLING_PLAN_FIELDS = `
           name
           description
           options { name value }
+          priceAdjustments {
+            adjustmentValue {
+              ... on SellingPlanPercentagePriceAdjustment {
+                adjustmentPercentage
+              }
+              ... on SellingPlanFixedAmountPriceAdjustment {
+                adjustmentAmount { amount currencyCode }
+              }
+              ... on SellingPlanFixedPriceAdjustment {
+                price { amount currencyCode }
+              }
+            }
+          }
         }
       }
     }
@@ -335,6 +360,15 @@ const PRODUCT_FIELDS = `
       availableForSale
       price { amount currencyCode }
       selectedOptions { name value }
+      sellingPlanAllocations(first: 20) {
+        nodes {
+          sellingPlan { id name }
+          priceAdjustments {
+            price { amount currencyCode }
+            compareAtPrice { amount currencyCode }
+          }
+        }
+      }
     }
   }
   ${SELLING_PLAN_FIELDS}
@@ -692,6 +726,7 @@ export async function getSubscriptionOffers({ first = 50 } = {}) {
           id: plan.id,
           name: plan.name,
           label: sellingPlanLabel(plan),
+          discountPercent: plan.discountPercent,
         }))
         .sort((a, b) => frequencySortKey(a.label) - frequencySortKey(b.label));
 
@@ -703,7 +738,49 @@ export async function getSubscriptionOffers({ first = 50 } = {}) {
         return true;
       });
 
-      const livePrice =
+      const planIds = new Set(uniquePlans.map((plan) => plan.id));
+      const allocation =
+        (variant?.sellingPlanAllocations || []).find((alloc) =>
+          planIds.has(alloc.sellingPlanId),
+        ) || null;
+
+      const subscribeAmount = allocation?.price?.amount;
+      const compareAmount =
+        allocation?.compareAtPrice?.amount || variant?.price?.amount || null;
+      const currency =
+        allocation?.price?.currencyCode ||
+        allocation?.compareAtPrice?.currencyCode ||
+        variant?.price?.currencyCode ||
+        'USD';
+
+      const fromPlanPercent = uniquePlans.find(
+        (plan) => typeof plan.discountPercent === 'number' && plan.discountPercent > 0,
+      )?.discountPercent;
+
+      let discountPercent =
+        typeof fromPlanPercent === 'number' ? Math.round(fromPlanPercent) : null;
+      if (
+        discountPercent == null &&
+        subscribeAmount != null &&
+        compareAmount != null &&
+        Number(compareAmount) > Number(subscribeAmount)
+      ) {
+        discountPercent = Math.round(
+          ((Number(compareAmount) - Number(subscribeAmount)) / Number(compareAmount)) * 100,
+        );
+      }
+
+      const hasDiscount =
+        Boolean(discountPercent && discountPercent > 0) &&
+        subscribeAmount != null &&
+        compareAmount != null &&
+        Number(compareAmount) > Number(subscribeAmount);
+
+      const liveSubscribePrice =
+        subscribeAmount != null ? formatMoney(subscribeAmount, currency) : '';
+      const liveComparePrice =
+        compareAmount != null ? formatMoney(compareAmount, currency) : '';
+      const liveOneTimePrice =
         variant?.price != null
           ? formatMoney(variant.price.amount, variant.price.currencyCode)
           : '';
@@ -713,7 +790,13 @@ export async function getSubscriptionOffers({ first = 50 } = {}) {
         name: overlay?.name || entry.name,
         groupName: entry.name,
         quantity: overlay?.quantity ?? 1,
-        price: overlay?.priceLabel || livePrice || '—',
+        price:
+          liveSubscribePrice ||
+          overlay?.priceLabel ||
+          liveOneTimePrice ||
+          '—',
+        compareAtPrice: hasDiscount ? liveComparePrice : '',
+        discountPercent: hasDiscount ? discountPercent : null,
         interval: overlay?.interval || 'per delivery',
         description:
           overlay?.description ||
