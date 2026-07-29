@@ -234,7 +234,7 @@ export default function Layout() {
       role="status"
     >
       Free shipping for purchases over
-      <span className="announcement-price">${FREE_SHIPPING_MIN}</span>
+      <span className="announcement-price">{`$${FREE_SHIPPING_MIN}`}</span>
     </div>
   );
 

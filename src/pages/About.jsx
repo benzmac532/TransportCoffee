@@ -16,8 +16,8 @@ export default function About() {
           <Reveal className="about-photo-col" variant="left" delaySteps={1}>
             <aside className="about-photo">
               <img
-                src="/nature-coffee.png"
-                alt="Holding a coffee mug overlooking a mountain valley at golden hour"
+                src="/founders-stand.jpg"
+                alt="Transport Coffee Roasters founders Shane Moody and Easton Veal at an outdoor coffee stand"
                 loading="lazy"
                 decoding="async"
               />
