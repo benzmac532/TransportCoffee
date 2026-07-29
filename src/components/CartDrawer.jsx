@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Minus, Plus, ShoppingBag, X } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Truck, X } from 'lucide-react';
 import { formatMoney, storefrontConfigHint } from '../lib/shopify';
+import { FREE_SHIPPING_MIN } from '../lib/site';
 import { useCart } from './CartContext';
 import ShopifyImage from './ShopifyImage';
 
@@ -99,6 +100,8 @@ export default function CartDrawer() {
 
   const lines = cart?.lines || [];
   const subtotal = cart?.cost?.subtotalAmount;
+  const subtotalAmount = Number(subtotal?.amount || 0);
+  const hasFreeShipping = Number.isFinite(subtotalAmount) && subtotalAmount >= FREE_SHIPPING_MIN;
 
   return (
     <div
@@ -228,6 +231,15 @@ export default function CartDrawer() {
                   {subtotal ? formatMoney(subtotal.amount, subtotal.currencyCode) : '-'}
                 </strong>
               </div>
+              {hasFreeShipping && (
+                <p className="cart-shipping-perk" role="status">
+                  <Truck size={15} strokeWidth={2} aria-hidden="true" />
+                  <span>
+                    Free shipping unlocked
+                    <small>{`On orders $${FREE_SHIPPING_MIN}+`}</small>
+                  </span>
+                </p>
+              )}
               <p className="cart-drawer-note">Taxes and shipping calculated at Shopify checkout.</p>
               <button
                 type="button"

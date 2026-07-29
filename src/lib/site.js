@@ -10,6 +10,9 @@ export const DEFAULT_DESCRIPTION =
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 export const DEFAULT_OG_IMAGE_ALT = 'Transport Coffee Roasters — Coffee that moves you.';
 
+/** Cart subtotal (USD) at or above this qualifies for free shipping messaging. */
+export const FREE_SHIPPING_MIN = 35;
+
 /** Build an absolute URL from a path (`/` or `/about`). */
 export function absoluteUrl(path = '/') {
   if (/^https?:\/\//i.test(path)) return path;

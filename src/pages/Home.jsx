@@ -95,8 +95,8 @@ export default function Home() {
         <Reveal className="editorial-visual" variant="left" delaySteps={1} as="div">
           <img
             className="editorial-photo"
-            src="/pour-over-bloom.png"
-            alt="Pour-over coffee blooming in a Chemex filter"
+            src="/founders-stand.jpg"
+            alt="Transport Coffee Roasters founders at an outdoor coffee stand"
             loading="lazy"
             decoding="async"
           />

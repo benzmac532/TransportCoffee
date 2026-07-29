@@ -5,6 +5,7 @@ import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react';
 import LogoStack from './LogoStack';
 import { useCart } from './CartContext';
 import { SHOP_COLLECTIONS } from '../lib/shopify';
+import { FREE_SHIPPING_MIN } from '../lib/site';
 
 const shopLinks = SHOP_COLLECTIONS.map((item) => ({
   label: item.label,
@@ -233,7 +234,7 @@ export default function Layout() {
       role="status"
     >
       Free shipping for purchases over
-      <span className="announcement-price">$35</span>
+      <span className="announcement-price">${FREE_SHIPPING_MIN}</span>
     </div>
   );
 
