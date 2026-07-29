@@ -23,11 +23,31 @@ export const FEATURED_HANDLES = [
 
 export const SHOP_COLLECTIONS = [
   { label: 'All', to: '/shop' },
-  { label: 'Coffee', to: '/shop/collections/coffee', handle: 'coffee' },
+  {
+    label: 'Coffee',
+    to: '/shop/collections/coffee',
+    handle: 'coffee',
+    blurb: 'Single origins and blends, roasted fresh for the journey ahead.',
+  },
   { label: 'Subscribe', to: '/subscriptions' },
-  { label: 'Merch', to: '/shop/collections/merch', handle: 'merch' },
-  { label: 'Gift Cards', to: '/shop/collections/gift-cards', handle: 'gift-cards' },
-  { label: 'Brew Gear', to: '/shop/collections/brew-gear', handle: 'brew-gear' },
+  {
+    label: 'Merch',
+    to: '/shop/collections/merch',
+    handle: 'merch',
+    blurb: 'Wear the brand — gear for mornings on the move.',
+  },
+  {
+    label: 'Gift Cards',
+    to: '/shop/collections/gift-cards',
+    handle: 'gift-cards',
+    blurb: 'Send great coffee when you can’t be there in person.',
+  },
+  {
+    label: 'Brew Gear',
+    to: '/shop/collections/brew-gear',
+    handle: 'brew-gear',
+    blurb: 'Tools for a better cup at home or on the road.',
+  },
 ];
 
 /**

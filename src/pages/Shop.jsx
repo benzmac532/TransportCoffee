@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import PageHero from '../components/PageHero';
 import ProductCard from '../components/ProductCard';
@@ -8,6 +9,24 @@ import { getStaticPageMeta } from '../lib/seoPages';
 import { getCollectionProducts, getProducts, SHOP_COLLECTIONS } from '../lib/shopify';
 
 const PRODUCT_KEY = (product) => product.id || product.handle;
+
+function ShopSectionHeading({ id, label, blurb, to, count }) {
+  return (
+    <div className="shop-section-heading">
+      <h2 id={id} className="eyebrow shop-section-label">
+        {label}
+      </h2>
+      {to && (
+        <Link className="shop-section-view-all" to={to}>
+          View all
+          {typeof count === 'number' ? ` (${count})` : ''}
+          <ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      )}
+      {blurb && <p className="shop-section-blurb">{blurb}</p>}
+    </div>
+  );
+}
 
 export default function Shop() {
   const { handle } = useParams();
@@ -25,7 +44,6 @@ export default function Shop() {
   const seoDescription =
     seoMeta?.description ||
     `Shop ${title} from Transport Coffee Roasters — specialty coffee roasted with care.`;
-
 
   useEffect(() => {
     let cancelled = false;
@@ -82,68 +100,104 @@ export default function Shop() {
     <main className={`page shop-page${isEmpty ? ' shop-page-empty' : ''}`}>
       <Seo title={seoTitle} description={seoDescription} path={seoPath} />
       <div className="shop-mosaic">
-        <PageHero eyebrow="Shop" title={title} />
+        <PageHero eyebrow="Transport Coffee Roasters" title="The Shop" />
 
-        <section className={`shop-catalog${isEmpty ? ' shop-catalog-empty' : ''}`}>
-          <Reveal className="shop-collection-nav" variant="fade" delaySteps={1} aria-label="Shop collections">
-            <Link to="/shop" className={!handle ? 'active' : undefined}>
-              All
-            </Link>
-            {SHOP_COLLECTIONS.filter((item) => item.handle).map((item) => (
-              <Link
-                key={item.handle}
-                to={item.to}
-                className={handle === item.handle ? 'active' : undefined}
-              >
-                {item.label}
+        <div className={`shop-catalog${isEmpty ? ' shop-catalog-empty' : ''}`}>
+          <Reveal className="shop-catalog-toolbar" variant="fade" delaySteps={0}>
+            <nav className="shop-collection-nav" aria-label="Shop collections">
+              <Link to="/shop" className={!handle ? 'active' : undefined}>
+                All
               </Link>
-            ))}
+              {SHOP_COLLECTIONS.filter((item) => item.handle).map((item) => (
+                <Link
+                  key={item.handle}
+                  to={item.to}
+                  className={handle === item.handle ? 'active' : undefined}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            {error && <p className="shop-status shop-status-error">{error}</p>}
+            {isEmpty && (
+              <div className="shop-coming-soon">
+                <p className="eyebrow">Coming soon</p>
+                <h2>{title}</h2>
+              </div>
+            )}
           </Reveal>
 
-          {error && <p className="shop-status shop-status-error">{error}</p>}
+          {!handle &&
+            collectionSections.map((section, sectionIndex) => (
+              <Reveal
+                as="section"
+                className={`shop-product-section${sectionIndex % 2 === 1 ? ' shop-product-section-alt' : ''}`}
+                key={section.handle}
+                delaySteps={sectionIndex}
+                variant="up"
+                aria-labelledby={`shop-section-${section.handle}`}
+              >
+                <ShopSectionHeading
+                  id={`shop-section-${section.handle}`}
+                  label={section.label}
+                  blurb={section.blurb}
+                  to={section.to}
+                  count={section.products.length}
+                />
+                <div className="product-grid shop-grid">
+                  {section.products.map((product, index) => (
+                    <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
+                      <ProductCard product={product} />
+                    </Reveal>
+                  ))}
+                </div>
+              </Reveal>
+            ))}
 
-          {isEmpty && (
-            <Reveal className="shop-coming-soon" variant="up">
-              <p className="eyebrow">Coming soon</p>
-              <h2>{title}</h2>
+          {handle && products.length > 0 && (
+            <Reveal
+              as="section"
+              className="shop-product-section"
+              variant="up"
+              delaySteps={0}
+              aria-label={title}
+            >
+              <ShopSectionHeading
+                label={collectionMeta?.label || title}
+                blurb={collectionMeta?.blurb}
+              />
+              <div className="product-grid shop-grid">
+                {products.map((product, index) => (
+                  <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
+                    <ProductCard product={product} />
+                  </Reveal>
+                ))}
+              </div>
             </Reveal>
           )}
 
-          {!handle && collectionSections.length > 0 && (
-            <div className="shop-section-list">
-              {collectionSections.map((section, sectionIndex) => (
-                <Reveal
-                  as="section"
-                  className="shop-product-section"
-                  key={section.handle}
-                  delaySteps={sectionIndex}
-                  variant="up"
-                >
-                  <Link to={section.to} className="shop-section-title">
-                    {section.label}
-                  </Link>
-                  <div className="product-grid shop-grid">
-                    {section.products.map((product, index) => (
-                      <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
-                        <ProductCard product={product} />
-                      </Reveal>
-                    ))}
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+          {uncategorizedProducts.length > 0 && !handle && (
+            <Reveal
+              as="section"
+              className={`shop-product-section${collectionSections.length % 2 === 1 ? ' shop-product-section-alt' : ''}`}
+              variant="up"
+              delaySteps={collectionSections.length}
+              aria-label="More products"
+            >
+              <ShopSectionHeading
+                label="More from the shop"
+                blurb="Additional pieces from the Transport catalog."
+              />
+              <div className="product-grid shop-grid">
+                {uncategorizedProducts.map((product, index) => (
+                  <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
+                    <ProductCard product={product} />
+                  </Reveal>
+                ))}
+              </div>
+            </Reveal>
           )}
-
-          {uncategorizedProducts.length > 0 && (
-            <div className="product-grid shop-grid">
-              {uncategorizedProducts.map((product, index) => (
-                <Reveal key={PRODUCT_KEY(product)} delaySteps={index} variant="up">
-                  <ProductCard product={product} />
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </section>
+        </div>
       </div>
     </main>
   );
