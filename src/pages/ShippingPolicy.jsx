@@ -22,7 +22,7 @@ export default function ShippingPolicy() {
         </p>
         <h3>Subscriptions</h3>
         <p>
-          Subscription orders include a flat $5 shipping rate on every delivery.
+          Subscription orders include free shipping on every delivery.
         </p>
         <h3>Processing</h3>
         <p>

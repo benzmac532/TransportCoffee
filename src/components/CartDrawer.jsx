@@ -101,7 +101,30 @@ export default function CartDrawer() {
   const lines = cart?.lines || [];
   const subtotal = cart?.cost?.subtotalAmount;
   const subtotalAmount = Number(subtotal?.amount || 0);
-  const hasFreeShipping = Number.isFinite(subtotalAmount) && subtotalAmount >= FREE_SHIPPING_MIN;
+  const hasSubscription = lines.some((line) => Boolean(line.sellingPlan));
+  const hasThresholdFreeShipping =
+    Number.isFinite(subtotalAmount) && subtotalAmount >= FREE_SHIPPING_MIN;
+  const shippingPerk = (() => {
+    if (hasSubscription && hasThresholdFreeShipping) {
+      return {
+        title: 'Free shipping unlocked',
+        detail: `Subscriptions + orders $${FREE_SHIPPING_MIN}+`,
+      };
+    }
+    if (hasSubscription) {
+      return {
+        title: 'Free shipping on your subscription',
+        detail: 'Included with every refill',
+      };
+    }
+    if (hasThresholdFreeShipping) {
+      return {
+        title: 'Free shipping unlocked',
+        detail: `On orders $${FREE_SHIPPING_MIN}+`,
+      };
+    }
+    return null;
+  })();
 
   return (
     <div
@@ -231,12 +254,12 @@ export default function CartDrawer() {
                   {subtotal ? formatMoney(subtotal.amount, subtotal.currencyCode) : '-'}
                 </strong>
               </div>
-              {hasFreeShipping && (
+              {shippingPerk && (
                 <p className="cart-shipping-perk" role="status">
                   <Truck size={15} strokeWidth={2} aria-hidden="true" />
                   <span>
-                    Free shipping unlocked
-                    <small>{`On orders $${FREE_SHIPPING_MIN}+`}</small>
+                    {shippingPerk.title}
+                    <small>{shippingPerk.detail}</small>
                   </span>
                 </p>
               )}

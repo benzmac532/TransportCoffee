@@ -195,8 +195,8 @@ export default function Home() {
             <span>&amp; save.</span>
           </h2>
           <p>
-            Get fresh coffee delivered on your schedule. $5 flat-rate shipping on
-            every subscription order.
+            Get fresh coffee delivered on your schedule. Free shipping on every
+            subscription order.
           </p>
           <Link className="button" to="/subscriptions">
             Explore plans

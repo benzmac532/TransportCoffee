@@ -10,7 +10,7 @@ import { getSubscriptionOffers } from '../lib/shopify';
 const pageMeta = getStaticPageMeta('/subscriptions');
 
 const perks = [
-  '$5 flat-rate shipping on every subscription order',
+  'Free shipping on every subscription order',
   'Save on recurring deliveries',
   'Pause, skip, or cancel anytime',
   'Freshly roasted for every delivery',
@@ -141,10 +141,10 @@ export default function Subscriptions() {
             <div className="subs-shipping-copy">
               <p className="eyebrow">Shipping</p>
               <h2>
-                $5 flat-rate
+                Free shipping
                 <span>on every delivery.</span>
               </h2>
-              <p>Flat $5 shipping on every refill with no surprise fees.</p>
+              <p>Free shipping on every refill. No surprises.</p>
             </div>
 
             <div className="subscription-options">

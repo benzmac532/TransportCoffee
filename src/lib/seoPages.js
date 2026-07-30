@@ -57,7 +57,7 @@ export const STATIC_PAGES = [
     path: '/subscriptions',
     title: 'Subscriptions',
     description:
-      'Subscribe and save on fresh Transport Coffee — delivered on your schedule with flat-rate shipping.',
+      'Subscribe and save on fresh Transport Coffee — delivered on your schedule with free shipping.',
     changefreq: 'monthly',
     priority: '0.8',
   },

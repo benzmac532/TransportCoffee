@@ -10,7 +10,7 @@ export default function About() {
     <main className="page about-page">
       <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <div className="about-mosaic">
-        <PageHero eyebrow="About Transport Coffee Roasters" title="Coffee that moves you" />
+        <PageHero eyebrow="About Transport Coffee Roasters" title="Coffee that moves you." />
 
         <section className="about-feature">
           <Reveal className="about-photo-col" variant="left" delaySteps={1}>
@@ -26,40 +26,42 @@ export default function About() {
 
           <Reveal className="prose about-copy" variant="up" delaySteps={2}>
             <p className="about-lead">
-              At Transport Coffee Roasters, we craft coffee with intention, designed to
-              forge the path from here to there. Built for momentum and grounded in
-              quality, we believe in coffee that moves you.
+              At Transport Coffee Roasters, we want to share our love of coffee with
+              everyone through carefully crafted roasts built on quality and consistency.
             </p>
 
             <p>
-              Founded by Shane Moody and Easton Veal, Transport Coffee Roasters was
-              born from a shared passion for exceptional coffee and the belief that
-              every journey deserves a great cup. Whether it&apos;s the start of your
-              morning, the middle of a busy workday, or the pursuit of something
-              bigger, coffee has the power to fuel progress and create meaningful
-              moments along the way.
+              Founded in 2026 by Shane Moody and Easton Veal, Transport Coffee Roasters
+              began with a shared passion for exceptional coffee and countless
+              conversations about what great coffee could mean to everyday people. More
+              than creating another coffee company, we wanted to build a brand that
+              celebrates the moments coffee creates. Whether it&apos;s the start of your
+              morning, the middle of a busy workday, or the pursuit of something bigger,
+              coffee has the ability to bring people together, sharpen focus, and create
+              meaningful moments with family, friends, and even strangers. We would be
+              honored for our coffee to become part of your daily ritual.
             </p>
 
             <p>
-              The name Transport represents movement, connection, and purpose. From the
-              farmers who cultivate each coffee cherry to the communities that gather
-              around a fresh brew, every cup is part of a larger journey. We honor that
-              journey by sourcing quality coffees, roasting with precision, and focusing
-              on consistency in every batch.
+              For us, Transport is more than a name; it&apos;s a way of life. Whether Shane
+              is making deliveries, Easton is working on his next project, or we&apos;re
+              both chasing the next opportunity to improve our craft, we&apos;re always
+              moving forward. That mindset shapes everything we do and reminds us that
+              the best coffee is meant to accompany people wherever life takes them.
             </p>
 
             <p>
-              Our mission is simple: to craft exceptional coffee that inspires
-              connection, fuels ambition, and supports the momentum that carries people
-              forward. We believe coffee should do more than taste good. It should
-              elevate your day, spark conversation, and help you move toward what
-              matters most.
+              Our mission is simple and intentional: to roast exceptional coffee that
+              inspires connection, fuels ambition, and helps move people forward. We
+              believe coffee should do more than taste great. It should honor the people
+              who grow it, create opportunities for meaningful relationships, and
+              encourage each of us to pursue what matters most.
             </p>
 
             <p>
-              Whether you&apos;re chasing a goal, building something meaningful, or
-              simply taking a moment to slow down, we&apos;re grateful to be part of
-              your journey.
+              Whether you&apos;re chasing a dream, building something meaningful, or simply
+              slowing down to enjoy a quiet moment, we&apos;re grateful to be part of your
+              journey. Thank you for letting us be a part of it.
             </p>
 
             <div className="prose-signoff">

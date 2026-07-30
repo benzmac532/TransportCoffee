@@ -64,8 +64,8 @@ export default function Wholesale() {
           <Reveal className="wholesale-photo-col" variant="left" delaySteps={1}>
             <aside className="wholesale-visual">
               <img
-                src="/bean-bins.png"
-                alt="Coffee beans in wooden retail bins with tasting notes"
+                src="/nature-coffee.png"
+                alt="Holding a coffee mug overlooking a mountain valley at golden hour"
                 loading="lazy"
                 decoding="async"
               />
