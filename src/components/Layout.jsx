@@ -5,7 +5,50 @@ import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react';
 import LogoStack from './LogoStack';
 import { useCart } from './CartContext';
 import { SHOP_COLLECTIONS } from '../lib/shopify';
-import { FREE_SHIPPING_MIN } from '../lib/site';
+import { FREE_SHIPPING_MIN, SOCIAL_LINKS } from '../lib/site';
+
+function InstagramIcon({ size = 18, strokeWidth = 1.75 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ size = 18, strokeWidth = 1.75 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14 8h2V5h-2c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h2.2l.8-3H13V9c0-.6.4-1 1-1Z" />
+    </svg>
+  );
+}
+
+const SOCIAL_ICONS = {
+  Instagram: InstagramIcon,
+  Facebook: FacebookIcon,
+};
 
 const shopLinks = SHOP_COLLECTIONS.map((item) => ({
   label: item.label,
@@ -366,6 +409,24 @@ export default function Layout() {
             </nav>
             <div className="footer-connect">
               <h3>Connect</h3>
+              <div className="footer-socials" aria-label="Social media">
+                {SOCIAL_LINKS.map((social) => {
+                  const Icon = SOCIAL_ICONS[social.label];
+                  if (!Icon) return null;
+                  return (
+                    <a
+                      key={social.label}
+                      className="footer-social-link"
+                      href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={social.label}
+                    >
+                      <Icon size={18} strokeWidth={1.75} />
+                    </a>
+                  );
+                })}
+              </div>
               <a href="mailto:transportcoffeeroasters@gmail.com">
                 transportcoffeeroasters@gmail.com
               </a>

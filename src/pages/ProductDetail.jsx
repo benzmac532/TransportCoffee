@@ -5,11 +5,30 @@ import Reveal from '../components/Reveal';
 import Seo from '../components/Seo';
 import ShopifyImage from '../components/ShopifyImage';
 import { DEFAULT_DESCRIPTION } from '../lib/site';
-import { formatMoney, getProductByHandle, storefrontConfigHint } from '../lib/shopify';
+import {
+  formatMoney,
+  getProductByHandle,
+  sellingPlanLabel,
+  storefrontConfigHint,
+} from '../lib/shopify';
 import NotFound from './NotFound';
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function frequencySortKey(label = '') {
+  const weeks = label.match(/(\d+)\s*weeks?/i);
+  if (weeks) return Number(weeks[1]);
+  if (/every\s+week\b/i.test(label) || /^weekly$/i.test(label)) return 1;
+  if (/month/i.test(label)) return 30;
+  return 100;
+}
+
+function pickDefaultSellingPlanId(plans) {
+  if (!plans?.length) return '';
+  const biweekly = plans.find((plan) => /2\s*week|bi-?weekly|fortnight/i.test(plan.label));
+  return (biweekly || plans[0]).id;
 }
 
 export default function ProductDetail() {
@@ -20,6 +39,8 @@ export default function ProductDetail() {
   const [error, setError] = useState('');
   const [selectedOptions, setSelectedOptions] = useState({});
   const [quantity, setQuantity] = useState(1);
+  const [purchaseMode, setPurchaseMode] = useState('onetime');
+  const [sellingPlanId, setSellingPlanId] = useState('');
   const [adding, setAdding] = useState(false);
   const [notice, setNotice] = useState('');
   const [zoomActive, setZoomActive] = useState(false);
@@ -32,6 +53,8 @@ export default function ProductDetail() {
     async function load() {
       setLoading(true);
       setError('');
+      setPurchaseMode('onetime');
+      setSellingPlanId('');
       try {
         const next = await getProductByHandle(handle);
         if (cancelled) return;
@@ -76,6 +99,118 @@ export default function ProductDetail() {
     );
   }, [product, selectedOptions]);
 
+  const subscriptionPlans = useMemo(() => {
+    if (!product || !selectedVariant) return [];
+
+    const allocationByPlanId = new Map(
+      (selectedVariant.sellingPlanAllocations || []).map((alloc) => [
+        alloc.sellingPlanId,
+        alloc,
+      ]),
+    );
+
+    const plans = [];
+    for (const group of product.sellingPlanGroups || []) {
+      for (const plan of group.sellingPlans || []) {
+        const allocation = allocationByPlanId.get(plan.id);
+        if (!allocation) continue;
+        plans.push({
+          id: plan.id,
+          name: plan.name,
+          label: sellingPlanLabel(plan),
+          discountPercent: plan.discountPercent,
+          price: allocation.price,
+          compareAtPrice: allocation.compareAtPrice,
+        });
+      }
+    }
+
+    const seen = new Set();
+    return plans
+      .filter((plan) => {
+        if (seen.has(plan.label)) return false;
+        seen.add(plan.label);
+        return true;
+      })
+      .sort((a, b) => frequencySortKey(a.label) - frequencySortKey(b.label));
+  }, [product, selectedVariant]);
+
+  const hasSubscription = subscriptionPlans.length > 0;
+  const isSubscribe = hasSubscription && purchaseMode === 'subscribe';
+
+  useEffect(() => {
+    if (!hasSubscription) {
+      setPurchaseMode('onetime');
+      setSellingPlanId('');
+      return;
+    }
+
+    setSellingPlanId((current) => {
+      if (current && subscriptionPlans.some((plan) => plan.id === current)) {
+        return current;
+      }
+      return pickDefaultSellingPlanId(subscriptionPlans);
+    });
+  }, [hasSubscription, subscriptionPlans]);
+
+  const selectedPlan = useMemo(
+    () => subscriptionPlans.find((plan) => plan.id === sellingPlanId) || subscriptionPlans[0] || null,
+    [subscriptionPlans, sellingPlanId],
+  );
+
+  const oneTimePrice = useMemo(() => {
+    if (!selectedVariant?.price) return '';
+    return formatMoney(selectedVariant.price.amount, selectedVariant.price.currencyCode);
+  }, [selectedVariant]);
+
+  const subscribePrice = useMemo(() => {
+    if (!selectedPlan?.price) return oneTimePrice;
+    return formatMoney(selectedPlan.price.amount, selectedPlan.price.currencyCode);
+  }, [selectedPlan, oneTimePrice]);
+
+  const compareAtPrice = useMemo(() => {
+    if (!selectedPlan) return '';
+    const compare = selectedPlan.compareAtPrice || selectedVariant?.price;
+    if (!compare) return '';
+    if (
+      selectedPlan.price &&
+      Number(compare.amount) > Number(selectedPlan.price.amount)
+    ) {
+      return formatMoney(compare.amount, compare.currencyCode);
+    }
+    return '';
+  }, [selectedPlan, selectedVariant]);
+
+  const savePercent = useMemo(() => {
+    if (!selectedPlan) return null;
+    if (typeof selectedPlan.discountPercent === 'number' && selectedPlan.discountPercent > 0) {
+      return Math.round(selectedPlan.discountPercent);
+    }
+    const compare = selectedPlan.compareAtPrice || selectedVariant?.price;
+    if (!compare || !selectedPlan.price) return null;
+    const compareAmt = Number(compare.amount);
+    const priceAmt = Number(selectedPlan.price.amount);
+    if (!(compareAmt > priceAmt)) return null;
+    return Math.round(((compareAmt - priceAmt) / compareAmt) * 100);
+  }, [selectedPlan, selectedVariant]);
+
+  const maxSavePercent = useMemo(() => {
+    const percents = subscriptionPlans
+      .map((plan) => {
+        if (typeof plan.discountPercent === 'number' && plan.discountPercent > 0) {
+          return Math.round(plan.discountPercent);
+        }
+        const compare = plan.compareAtPrice || selectedVariant?.price;
+        if (!compare || !plan.price) return null;
+        const compareAmt = Number(compare.amount);
+        const priceAmt = Number(plan.price.amount);
+        if (!(compareAmt > priceAmt)) return null;
+        return Math.round(((compareAmt - priceAmt) / compareAmt) * 100);
+      })
+      .filter((value) => typeof value === 'number' && value > 0);
+    return percents.length ? Math.max(...percents) : null;
+  }, [subscriptionPlans, selectedVariant]);
+
   function updateZoomOrigin(event) {
     const node = mediaRef.current;
     if (!node) return;
@@ -106,11 +241,19 @@ export default function ProductDetail() {
 
   async function handleAddToCart() {
     if (!selectedVariant?.id) return;
+    if (isSubscribe && !selectedPlan?.id) {
+      setNotice('Choose a delivery frequency to subscribe.');
+      return;
+    }
     setNotice('');
     setAdding(true);
     try {
-      await addItem(selectedVariant.id, quantity);
-      setNotice('Added to cart.');
+      await addItem(
+        selectedVariant.id,
+        quantity,
+        isSubscribe ? { sellingPlanId: selectedPlan.id } : {},
+      );
+      setNotice(isSubscribe ? 'Subscription added to cart.' : 'Added to cart.');
     } catch (err) {
       setNotice(err.message || 'Could not add to cart.');
     } finally {
@@ -152,13 +295,12 @@ export default function ProductDetail() {
     );
   }
 
-  const price = selectedVariant?.price
-    ? formatMoney(selectedVariant.price.amount, selectedVariant.price.currencyCode)
-    : '';
-
   const optionFields = (product.options || []).filter(
     (option) => Array.isArray(option.values) && option.values.length > 1,
   );
+
+  const successNotice =
+    notice === 'Added to cart.' || notice === 'Subscription added to cart.';
 
   return (
     <main className="page shop-page product-detail-page">
@@ -206,7 +348,72 @@ export default function ProductDetail() {
               <div className="product-detail-intro">
                 <p className="eyebrow">{product.productType || 'Product'}</p>
                 <h1>{product.title}</h1>
-                {price && <p className="product-detail-price">{price}</p>}
+
+                {hasSubscription && (
+                  <div
+                    className="purchase-mode"
+                    role="tablist"
+                    aria-label="Purchase type"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      id="purchase-tab-onetime"
+                      aria-selected={purchaseMode === 'onetime'}
+                      className={`purchase-mode-tab${purchaseMode === 'onetime' ? ' is-active' : ''}`}
+                      onClick={() => setPurchaseMode('onetime')}
+                    >
+                      One-time purchase
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      id="purchase-tab-subscribe"
+                      aria-selected={purchaseMode === 'subscribe'}
+                      className={`purchase-mode-tab${purchaseMode === 'subscribe' ? ' is-active' : ''}`}
+                      onClick={() => setPurchaseMode('subscribe')}
+                    >
+                      <span>Subscribe &amp; save</span>
+                      {maxSavePercent != null && (
+                        <span className="purchase-mode-save">Save {maxSavePercent}%</span>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {(oneTimePrice || subscribePrice) && (
+                  <div className="product-detail-price-stack">
+                    <div
+                      className={`product-detail-price-state${!isSubscribe ? ' is-active' : ''}`}
+                      aria-hidden={isSubscribe}
+                    >
+                      {oneTimePrice && (
+                        <div className="product-detail-price-row">
+                          <p className="product-detail-price">{oneTimePrice}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className={`product-detail-price-state${isSubscribe ? ' is-active' : ''}`}
+                      aria-hidden={!isSubscribe}
+                    >
+                      {subscribePrice && (
+                        <div className="product-detail-price-row">
+                          <p className="product-detail-price">{subscribePrice}</p>
+                          {compareAtPrice && (
+                            <p className="product-detail-price-compare">{compareAtPrice}</p>
+                          )}
+                          {savePercent != null && (
+                            <span className="product-detail-save">Save {savePercent}%</span>
+                          )}
+                        </div>
+                      )}
+                      <p className="product-detail-price-note">
+                        Per delivery · pause or skip anytime
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {product.description && (
                   <p className="product-detail-desc">{product.description}</p>
                 )}
@@ -258,17 +465,49 @@ export default function ProductDetail() {
                   </label>
                 </div>
 
+                {hasSubscription && (
+                  <div
+                    className={`product-option-row product-option-frequency-row${
+                      isSubscribe ? '' : ' is-reserved'
+                    }`}
+                    aria-hidden={!isSubscribe}
+                  >
+                    <label className="product-option product-option-frequency">
+                      <span>Delivery frequency</span>
+                      <select
+                        value={selectedPlan?.id || ''}
+                        tabIndex={isSubscribe ? 0 : -1}
+                        disabled={!isSubscribe}
+                        onChange={(event) => setSellingPlanId(event.target.value)}
+                      >
+                        {subscriptionPlans.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   className="button product-detail-cta"
-                  disabled={adding || cartLoading || !selectedVariant?.availableForSale}
+                  disabled={
+                    adding ||
+                    cartLoading ||
+                    !selectedVariant?.availableForSale ||
+                    (isSubscribe && !selectedPlan?.id)
+                  }
                   onClick={handleAddToCart}
                 >
                   {!selectedVariant?.availableForSale
                     ? 'Sold out'
                     : adding
                       ? 'Adding…'
-                      : 'Add to cart'}
+                      : isSubscribe
+                        ? 'Subscribe'
+                        : 'Add to cart'}
                 </button>
 
                 {!configured && (
@@ -276,8 +515,8 @@ export default function ProductDetail() {
                 )}
                 {notice && (
                   <p
-                    className={`shop-status${notice === 'Added to cart.' ? '' : ' shop-status-error'}`}
-                    role={notice === 'Added to cart.' ? 'status' : 'alert'}
+                    className={`shop-status${successNotice ? '' : ' shop-status-error'}`}
+                    role={successNotice ? 'status' : 'alert'}
                   >
                     {notice}
                   </p>

@@ -13,6 +13,18 @@ export const DEFAULT_OG_IMAGE_ALT = 'Transport Coffee Roasters — Coffee that m
 /** Cart subtotal (USD) at or above this qualifies for free shipping messaging. */
 export const FREE_SHIPPING_MIN = 35;
 
+/** Brand social profiles linked from the site footer. */
+export const SOCIAL_LINKS = [
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/transportcoffeeroasters/',
+  },
+  {
+    label: 'Facebook',
+    href: 'https://www.facebook.com/people/Transport-Coffee-Roasters/61589538743665/',
+  },
+];
+
 /** Build an absolute URL from a path (`/` or `/about`). */
 export function absoluteUrl(path = '/') {
   if (/^https?:\/\//i.test(path)) return path;

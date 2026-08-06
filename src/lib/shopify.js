@@ -56,6 +56,27 @@ export const SHOP_COLLECTIONS = [
  */
 export const SUBSCRIPTION_PLAN_OVERLAYS = [
   {
+    match: /frequent\s*flyer/i,
+    name: 'Frequent Flyer',
+    quantity: 1,
+    preferredHandles: ['frequent-flyer'],
+    interval: 'per delivery',
+    description: 'Our house blend, as often as you want',
+    coffees: ['Built for daily drinkers', 'Pause or skip anytime'],
+    featured: true,
+    order: 10,
+  },
+  {
+    match: /flight\s*plan/i,
+    name: 'The Flight Plan',
+    quantity: 1,
+    preferredHandles: ['ethiopia-danbi-udo', 'peru-minca-organic'],
+    interval: 'per delivery',
+    description: 'Rotating single origin of the roasters choice',
+    coffees: ['Seasonal origins', 'Pause or skip anytime'],
+    order: 20,
+  },
+  {
     match: /explorer/i,
     name: 'Explorer',
     quantity: 1,
@@ -63,7 +84,7 @@ export const SUBSCRIPTION_PLAN_OVERLAYS = [
     interval: 'per delivery',
     description: 'One 12oz bag of our rotating single origin.',
     coffees: ['Rotating single origin', 'Freshly roasted weekly'],
-    order: 10,
+    order: 30,
   },
   {
     match: /wanderlust/i,
@@ -73,8 +94,7 @@ export const SUBSCRIPTION_PLAN_OVERLAYS = [
     interval: 'per delivery',
     description: 'A bag of house coffee on your schedule — subscribe and save.',
     coffees: ['Built for daily drinkers', 'Pause or skip anytime'],
-    featured: true,
-    order: 20,
+    order: 40,
   },
   {
     match: /roaster'?s?\s*choice|single origin/i,
@@ -84,7 +104,7 @@ export const SUBSCRIPTION_PLAN_OVERLAYS = [
     interval: 'per delivery',
     description: 'Rotating single-origin bags, curated by our roasting team.',
     coffees: ['Seasonal origins', 'Freshly roasted for each delivery'],
-    order: 30,
+    order: 50,
   },
   {
     match: /office/i,
@@ -94,7 +114,7 @@ export const SUBSCRIPTION_PLAN_OVERLAYS = [
     interval: 'per delivery',
     description: 'Five 12oz bags for teams that run on good coffee.',
     coffees: ['Custom blend options', 'Priority roasting schedule'],
-    order: 40,
+    order: 60,
   },
 ];
 
@@ -659,7 +679,7 @@ export async function addSubscriptionToCart({
   return addLinesToCart(merchandiseId, quantity, { sellingPlanId });
 }
 
-function sellingPlanLabel(plan) {
+export function sellingPlanLabel(plan) {
   const delivery = plan.options?.find((opt) => /delivery|frequency|interval/i.test(opt.name));
   let label = (delivery?.value || plan.name || 'Delivery').trim();
   label = label.replace(/^deliver\s+/i, '');
@@ -738,8 +758,15 @@ export async function getSubscriptionOffers({ first = 50 } = {}) {
     .map((entry) => {
       const overlay = findPlanOverlay(entry.name);
       const product = pickProductForGroup(entry.products, overlay);
+      const variants = (product?.variants || []).map((v) => ({
+        id: v.id,
+        title: v.title,
+        availableForSale: v.availableForSale !== false,
+        price: v.price || null,
+        sellingPlanAllocations: v.sellingPlanAllocations || [],
+      }));
       const variant =
-        product?.variants?.find((v) => v.availableForSale) || product?.variants?.[0] || null;
+        variants.find((v) => v.availableForSale) || variants[0] || null;
 
       const sellingPlans = [...entry.sellingPlansById.values()]
         .map((plan) => ({
@@ -826,6 +853,7 @@ export async function getSubscriptionOffers({ first = 50 } = {}) {
         featured: Boolean(overlay?.featured),
         order: overlay?.order ?? 500,
         sellingPlans: uniquePlans,
+        variants,
         merchandiseId: variant?.id || null,
         productHandle: product?.handle || null,
         productTitle: product?.title || null,

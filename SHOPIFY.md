@@ -73,6 +73,42 @@ If `transportcoffeeroasters.com` is still the Shopify **primary** (or connected 
 
 Do **not** try to SPA-route or permanently proxy `/cart/c` on the marketing domain while it remains Shopify’s primary — Shopify will keep redirecting there.
 
+### “Continue shopping” goes to `*.myshopify.com`
+
+After checkout, Shopify’s Thank You page **Continue shopping** button uses the Online Store URL (usually the Shopify primary domain). That is expected while `bk6zru-20.myshopify.com` is primary so checkout works.
+
+**Do not** fix this by making `transportcoffeeroasters.com` Shopify’s primary again — that recreates the `/cart/c` → React 404 loop.
+
+**Safe fix (keeps checkout on myshopify):** redirect Online Store theme pages to the marketing site.
+
+1. Shopify Admin → **Online Store → Themes → … → Edit code**
+2. Open `layout/theme.liquid` (or the main layout)
+3. Near the top of `<head>`, add:
+
+```liquid
+{% comment %}
+  Headless: send Online Store browsers back to the marketing site.
+  Checkout / cart / account stay on Shopify (not rendered by this theme).
+{% endcomment %}
+{% unless request.path contains '/checkouts' or request.path contains '/cart' or request.path contains '/account' %}
+  <script>
+    window.location.replace('https://transportcoffeeroasters.com' + {% if request.path == '/' %}'/shop'{% else %}'{{ request.path }}'{% endif %});
+  </script>
+{% endunless %}
+```
+
+Simpler option (homepage only — enough for most Continue shopping clicks):
+
+```liquid
+{% if request.page_type == 'index' %}
+  <script>window.location.replace('https://transportcoffeeroasters.com/shop');</script>
+{% endif %}
+```
+
+4. Save, then buy a test order and click **Continue shopping** — you should land on `transportcoffeeroasters.com`.
+
+Optional polish: Plus / Checkout Extensibility apps can add a custom “Back to store” block on the thank-you page; the native Continue shopping URL still can’t be edited from this React repo.
+
 ## 5. Domain cutover (host this site on transportcoffeeroasters.com)
 
 Goal: this Vite app becomes the public site; Shopify remains the commerce backend.
