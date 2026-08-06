@@ -13,6 +13,7 @@ const pageMeta = getStaticPageMeta('/');
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [heroVideoFailed, setHeroVideoFailed] = useState(false);
   const [contactStacked, setContactStacked] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(CONTACT_STACKED_QUERY).matches : false,
   );
@@ -52,24 +53,34 @@ export default function Home() {
       <Seo title={pageMeta.title} description={pageMeta.description} path={pageMeta.path} />
       <section className="home-quad">
         <Reveal className="perc-hero-copy" variant="left" delaySteps={0} as="div">
-          <div className="perc-hero-media" aria-hidden="true">
-            <video
-              className="perc-hero-video"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="/open-roaster.png"
-            >
-              <source src="/roaster.mp4" type="video/mp4" />
-            </video>
+          <div
+            className={`perc-hero-media${heroVideoFailed ? ' is-fallback' : ''}`}
+            aria-hidden="true"
+          >
+            {!heroVideoFailed && (
+              <video
+                className="perc-hero-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster="/open-roaster.png"
+                onError={() => setHeroVideoFailed(true)}
+              >
+                <source
+                  src="/roaster.mp4"
+                  type="video/mp4"
+                  onError={() => setHeroVideoFailed(true)}
+                />
+              </video>
+            )}
           </div>
           <div className="perc-hero-content">
             <p className="eyebrow">Est. 2026</p>
             <h1>
               <span>Coffee that</span>
-              <span>moves you</span>
+              <span>moves you.</span>
             </h1>
             <p className="lead">
               We source thoughtful coffees and roast them with every ounce of care.

@@ -513,6 +513,22 @@ h3,
   width: 100%;
 }
 
+.perc-hero-media.is-fallback {
+  background:
+    radial-gradient(circle at 28% 18%, rgba(194, 92, 46, 0.2), transparent 48%),
+    linear-gradient(165deg, #17324d 0%, var(--navy) 48%, var(--deep-navy) 100%);
+}
+
+.perc-hero-media.is-fallback::after {
+  background:
+    linear-gradient(
+      115deg,
+      rgba(7, 22, 35, 0.28) 0%,
+      rgba(7, 22, 35, 0.12) 48%,
+      transparent 100%
+    );
+}
+
 .perc-hero-content {
   align-content: center;
   display: grid;
@@ -546,13 +562,13 @@ h3,
     display: none;
   }
 
-  .perc-hero-media {
+  .perc-hero-media:not(.is-fallback) {
     background:
       linear-gradient(115deg, rgba(7, 22, 35, 0.72), rgba(7, 22, 35, 0.45)),
       url('/open-roaster.png') center / cover no-repeat;
   }
 
-  .perc-hero-media::after {
+  .perc-hero-media:not(.is-fallback)::after {
     display: none;
   }
 }
