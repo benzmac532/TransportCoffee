@@ -29,7 +29,6 @@ export const SHOP_COLLECTIONS = [
     handle: 'coffee',
     blurb: 'Single origins and blends, roasted fresh for the journey ahead.',
   },
-  { label: 'Subscribe', to: '/subscriptions' },
   {
     label: 'Merch',
     to: '/shop/collections/merch',
@@ -72,7 +71,7 @@ export const SUBSCRIPTION_PLAN_OVERLAYS = [
     quantity: 1,
     preferredHandles: ['ethiopia-danbi-udo', 'peru-minca-organic'],
     interval: 'per delivery',
-    description: 'Rotating single origin of the roasters choice',
+    description: "Rotating single origin of the roaster's choice",
     coffees: ['Seasonal origins', 'Pause or skip anytime'],
     order: 20,
   },
